@@ -1,4 +1,8 @@
-# Makefile for producing test-plot
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Time Series Analysis: Make test plot
+#
+# Author: Jakob Rørsted Mosumgaard
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 default: test.pdf
 
