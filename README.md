@@ -14,7 +14,8 @@ Author: Jakob Rørsted Mosumgaard (jakob@phys.au.dk).
 Requirements: 
 * Python 3 (tested with v3.5.1)
 * Cython (tested with v0.24)
-* gcc (tested with v5.3.0)
+* GCC (tested with v5.3.0)
+* Gnuplot (tested with v5.0; not a strict requirement, only for running tests)
 
 Setup:
 * Well...
