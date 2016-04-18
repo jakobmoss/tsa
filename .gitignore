@@ -1,32 +1,43 @@
+##########################
+# Project-specific files #
+##########################
+# Dirs
+data/
+output/
+testdata/*.txt
+test/
+!test/Makefile
+
+# Cython
+fourier.c
+
+# Executables
+powerspec
+
+
+#############
+# Generic C #
+#############
 # Object files
 *.o
-*.ko
-*.obj
-*.elf
 
-# Precompiled Headers
-*.gch
-*.pch
-
-# Libraries
-*.lib
-*.a
-*.la
-*.lo
-
-# Shared objects (inc. Windows DLLs)
-*.dll
+# Shared objects
 *.so
 *.so.*
 *.dylib
 
 # Executables
-*.exe
+*.x
 *.out
-*.app
-*.i*86
-*.x86_64
-*.hex
 
-# Debug files
-*.dSYM/
+
+#########################
+# Generic Python/Cython #
+#########################
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# Distribution / packaging
+env/
+build/
