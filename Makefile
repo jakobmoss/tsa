@@ -39,7 +39,7 @@ test: $(EXEC) data
 .PHONY: clean
 clean:
 	$(RM) $(EXEC)
-	$(RM) output/*.txt
+	$(RM) output/*.txt output/*.pdf
 	$(MAKE) -C source clean
 	$(MAKE) -C testdata clean
 	$(MAKE) -C test clean
