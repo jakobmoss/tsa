@@ -10,8 +10,8 @@ import fourier
 # Script
 ###############################################################################
 # Initial setup
-datdir = 'testdata/'
-outdir = 'output/'
+datdir = '../testdata/'
+outdir = '../output/'
 compare = False
 
 # Run power spectrum

@@ -187,8 +187,8 @@ def calc():
         double ms, low, high, rate
     
     # Initial setup
-    datdir = 'testdata/'
-    outdir = 'output/'
+    datdir = '../testdata/'
+    outdir = '../output/'
 
     # Set up of power spectrum
     low = 1900.0
@@ -196,7 +196,7 @@ def calc():
     rate = 0.1
 
     # Load data
-    infile = 'ts_7days.txt'
+    infile = 'ts_1days.txt'
     t, flux = np.ascontiguousarray(np.loadtxt(datdir + infile, unpack=True))
 
     # Convert time to megaseconds

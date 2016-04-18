@@ -6,11 +6,13 @@
 # Default target
 all: fourier.so
 
-# Module to do fourier transform
-fourier.so: setup.py fourier.pyx
+# Cython module
+fourier.so: setup.py fourier.pyx tsfourier.c
 	python $< build_ext --inplace
 
+tsfourier.c:
+	cp ../source/tsfourier.[c,h] .
 
 # Housekeeping
 clean:
-	$(RM) -r fourier.c fourier*.so build
+	$(RM) -r fourier.c fourier*.so build tsfourier.[c,h]

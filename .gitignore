@@ -10,6 +10,7 @@ test/*
 
 # Cython
 fourier.c
+cython/tsfourier.[c,h]
 
 # Executables
 powerspec
