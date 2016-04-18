@@ -49,12 +49,12 @@ def powerspec(time, flux, low, high, rate):
 # Script
 ###############################################################################
 # Initial setup
-datdir = 'testdata/'
-outdir = 'output/'
+datdir = '../testdata/'
+outdir = '../output/'
 compare = False
 
 # Load data
-infile = 'ts_7days.txt'
+infile = 'ts_14days.txt'
 time, flux = np.loadtxt(datdir + infile, unpack=True)
 
 # Convert time to megaseconds

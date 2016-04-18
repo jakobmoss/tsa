@@ -72,7 +72,8 @@ def powerspec(double[::1] time, double[::1] flux,
     arrsca(freq, PI2, ny, M)
 
     # Calculate power using external c-function
-    fourier(&time[0], &flux[0], &ny[0], N, M, &powers[0])
+    with nogil:
+        fourier(&time[0], &flux[0], &ny[0], N, M, &powers[0])
 
     # Return an array of test (cyclic) frequencies and the calculated power
     return freq, powers
