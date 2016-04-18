@@ -5,6 +5,13 @@
 # distutils: extra_compile_args = -fopenmp -ffast-math -funroll-loops
 # distutils: extra_link_args = -fopenmp
 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Time Series Analysis -- Cython module
+#
+# Author: Jakob Rørsted Mosumgaard
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 ###############################################################################
 # Modules
 ###############################################################################
@@ -15,17 +22,21 @@ import numpy as np
 # Cython
 from cython cimport boundscheck, wraparound, nonecheck
 
+# External handwritten C-module
 cdef extern from "tsfourier.h" nogil:
     void fourier(double[] time, double[] flux, double[] ny, size_t N, size_t M,
                  double[] power)
 
 
 ###############################################################################
-# Auxiliary functions for arrays (using typed memoryviews)
+# Auxiliary functions for Cython arrays (using typed memoryviews)
 ###############################################################################
-cdef void arrsca(double[::1] mvi, double a, double[::1] mvo,
+cdef void arr_sca(double[::1] mvi, double a, double[::1] mvo,
                  int N) nogil:
-    """Multiply array by scalar"""
+    """
+    Multiply array by scalar.
+    NOTE: Cannot interact with Python objets.
+    """
     cdef:
         int i
 
@@ -33,8 +44,11 @@ cdef void arrsca(double[::1] mvi, double a, double[::1] mvo,
         mvo[i] = a * mvi[i]
 
 
-cdef double[::1] arrsca_safe(double[::1] mvi, double a):
-    """Multiply array by scalar -- NOT IN-PLACE"""
+cdef double[::1] arr_sca_copy(double[::1] mvi, double a):
+    """
+    Multiply array by scalar -- NOT IN-PLACE.
+    NOTE: Can interact with Python objects.
+    """
     cdef:
         double[::1] mvo = np.zeros(mvi.shape[0])
         int i, N
@@ -51,7 +65,11 @@ cdef double[::1] arrsca_safe(double[::1] mvi, double a):
 def powerspec(double[::1] time, double[::1] flux,
               double low, double high, double rate):
     """
-    Calculate the fourier power spectrum using a least mean square method.
+    Calculate the power spectrum (fourier transform) using a least mean square
+    method.
+
+    This function is a wrapper for the underlying pure-C function.
+
     Arguments:
     - `time`: Array with the values of the time
     - `flux`: Array with the measured flux
@@ -69,9 +87,10 @@ def powerspec(double[::1] time, double[::1] flux,
         double[::1] powers = np.zeros(M)
     
     # Convert test cyclic frequencies to angular
-    arrsca(freq, PI2, ny, M)
+    arr_sca(freq, PI2, ny, M)
 
-    # Calculate power using external c-function
+    # Calculate power using external C-function
+    #  --> Temporary deactivate the Python memory management for performance
     with nogil:
         fourier(&time[0], &flux[0], &ny[0], N, M, &powers[0])
 
@@ -80,9 +99,14 @@ def powerspec(double[::1] time, double[::1] flux,
 
 
 ###############################################################################
-# Script
+# Main function
 ###############################################################################
 def calc():
+    """
+    Calculate the power spectrum.
+
+    Prepare the input for the Cython/C-function.
+    """
     cdef:
         double[::1] t, time, flux, freq, powers
         double ms, low, high, rate
@@ -102,7 +126,7 @@ def calc():
 
     # Convert time to megaseconds
     ms = 1e-6
-    time = arrsca_safe(t, ms)
+    time = arr_sca_copy(t, ms)
 
     # Run power spectrum
     freq, powers = powerspec(time, flux, low, high, rate)

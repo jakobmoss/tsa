@@ -1,4 +1,10 @@
-# Needed to build Cython
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Time Series Analysis -- Compilaiton of the Cython module
+#
+# Author: Jakob Rørsted Mosumgaard
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# Import Cython-build modules
 from distutils.core import setup, Extension
 from Cython.Build import cythonize
 
