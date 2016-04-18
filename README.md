@@ -4,7 +4,6 @@ Software for performing Time Series Analysis written in C, Cython and Python.
 
 Author: Jakob Rørsted Mosumgaard (jakob@phys.au.dk).
 
-
 ### Features ###
 
 * Well ...
@@ -12,7 +11,13 @@ Author: Jakob Rørsted Mosumgaard (jakob@phys.au.dk).
 
 ### Installation ###
 
-* Yes...
+Requirements: 
+* Python 3 (tested with v3.5.1)
+* Cython (tested with v0.24)
+* gcc (tested with v5.3.0)
+
+Setup:
+* Well...
 
 
 ### Folders ###
