@@ -23,7 +23,7 @@ void alpbet(double time[], double flux[], double nu, size_t N, double *alpha, do
     double sc = 0;
 
     // Loop over the time series
-    for (int i = 0; i < N; ++i) {
+    for (size_t i = 0; i < N; ++i) {
         // Pre-calculate sin, cos of point
         sn = sin(nu * time[i]);
         cn = cos(nu * time[i]);
