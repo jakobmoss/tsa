@@ -5,7 +5,7 @@
 data/
 output/
 testdata/*.txt
-test/
+test/*
 !test/Makefile
 
 # Cython
