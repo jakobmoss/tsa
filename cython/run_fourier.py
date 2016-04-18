@@ -10,6 +10,10 @@
 ###############################################################################
 # Modules
 ###############################################################################
+# General
+from __future__ import print_function, with_statement, division
+
+# Cython module
 import fourier
 
 
@@ -17,12 +21,18 @@ import fourier
 # Script
 ###############################################################################
 # Initial setup
+infile = 'ts_7days.txt'
 datdir = '../testdata/'
 outdir = '../output/'
 compare = False
 
+# Sampling of power spectrum (in microHertz)
+low = 1900.0
+high = 4100.0
+rate = 0.1
+
 # Run power spectrum
-freq, powers = fourier.calc()
+freq, powers = fourier.calc(datdir + infile, low, high, rate)
 
 # Compare to the true oscillations?
 if compare:

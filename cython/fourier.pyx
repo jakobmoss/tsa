@@ -101,28 +101,29 @@ def powerspec(double[::1] time, double[::1] flux,
 ###############################################################################
 # Main function
 ###############################################################################
-def calc():
+def calc(infile, freq_start, freq_stop, freq_rate):
     """
-    Calculate the power spectrum.
+    Interface to calculation of the power spectrum.
 
-    Prepare the input for the Cython/C-function.
+    This function prepares the input for the fast Cython/C-function.
+
+    Arguments:
+    - `infile`: File to read in the format (t [seconds] , data).
+    - `freq_start` : The lowest test frequency (in microHertz).
+    - `freq_stop`: The highest test frequency (in microHertz).
+    - `freq_rate`: The sampling rate (spacing between frequencies).
     """
     cdef:
         double[::1] t, time, flux, freq, powers
         double ms, low, high, rate
     
-    # Initial setup
-    datdir = '../testdata/'
-    outdir = '../output/'
-
     # Set up of power spectrum
-    low = 1900.0
-    high = 4100.0
-    rate = 0.1
+    low = freq_start
+    high = freq_stop
+    rate = freq_rate
 
     # Load data
-    infile = 'ts_7days.txt'
-    t, flux = np.ascontiguousarray(np.loadtxt(datdir + infile, unpack=True))
+    t, flux = np.ascontiguousarray(np.loadtxt(infile, unpack=True))
 
     # Convert time to megaseconds
     ms = 1e-6
