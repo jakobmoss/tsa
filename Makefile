@@ -8,6 +8,7 @@
 EXEC = powerspec.x
 DAYS = 7
 
+
 # Default target
 default: $(EXEC)
 
@@ -20,6 +21,11 @@ data:
 $(EXEC):
 	$(MAKE) -C source all
 
+# Build Cython module
+.PHONY: cython
+cython:
+	$(MAKE) -C cython all
+
 # Run test
 .PHONY: test
 test: $(EXEC)
@@ -29,7 +35,6 @@ test: $(EXEC)
 	cp output/ctest.txt test/
 	$(MAKE) -C test default
 
-
 # Housekeeping
 .PHONY: clean
 clean:
@@ -38,3 +43,4 @@ clean:
 	$(MAKE) -C source clean
 	$(MAKE) -C testdata clean
 	$(MAKE) -C test clean
+	$(MAKE) -C cython clean
