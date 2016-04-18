@@ -20,6 +20,11 @@ cdef extern from "math.h" nogil:
     double sin(double x)
     double cos(double x)
 
+cdef extern from "tsfourier.h" nogil:
+    void fourier(double[] time, double[] flyx, double[] ny, size_t N, size_t M,
+                 double[] power)
+
+
 ###############################################################################
 # Auxiliary functions for arrays (using typed memoryviews)
 #  -->  NB: Performed in-place for speed
