@@ -28,7 +28,7 @@ cython:
 
 # Run test
 .PHONY: test
-test: $(EXEC)
+test: $(EXEC) data
 	@printf "\n" 
 	time ./$(EXEC) testdata/ts_$(DAYS)days.txt output/ctest.txt
 	@printf "\n" 

@@ -4,12 +4,10 @@
 
 #include <omp.h>
 
-#include "arrlib.h"
-
 #define PI 3.141592653589793
 #define PI2 6.283185307179586
 
-#define NUM_THREADS 8
+#define NUM_THREADS 4
 
 // Auxialiary: Calculate alpha and beta coefficients
 void alpbet(double time[], double flux[], double nu, size_t N, double *alpha, double *beta)
