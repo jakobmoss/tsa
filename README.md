@@ -17,6 +17,7 @@ Requirements:
 * Python 3 (tested with v3.5.1)
 * Cython (tested with v0.24)
 * GCC (tested with v5.3.0)
+* NumPy (tested with v1.11.0)
 * Gnuplot (tested with v5.0; not a strict requirement, only for running tests)
 
 Setup: The whole project is controlled by several Makefile. The targets available from the root-dir are:
