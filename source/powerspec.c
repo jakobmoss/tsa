@@ -7,7 +7,6 @@
 #include "arrlib.h"
 #include "tsfourier.h"
 
-#define PI 3.141592653589793
 #define PI2 6.283185307179586
 
 
@@ -32,6 +31,8 @@ int main(int argc, char *argv[])
         N = countlines(argc, argv);
     }
 
+    // Pretty print
+    printf("\nCalculating the power spectrum of \"%s\" ...\n", argv[1]);
     
     /* Read data from the file */
     double* t = malloc(N * sizeof(double));
@@ -55,8 +56,6 @@ int main(int argc, char *argv[])
     arr_scale(freq, PI2, ny, M);
 
     // Initialise arrays for data storage
-    double* alpha = malloc(M * sizeof(double));
-    double* beta = malloc(M * sizeof(double));
     double* power = malloc(M * sizeof(double));
 
     
@@ -72,10 +71,9 @@ int main(int argc, char *argv[])
     free(flux);
     free(freq);
     free(ny);
-    free(alpha);
-    free(beta);
     free(power);
         
-    
+    /* Done! */
+    printf("Done!\n\n");
     return 0; 
 }

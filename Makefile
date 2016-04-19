@@ -18,7 +18,7 @@ data:
 	$(MAKE) -C testdata all
 
 # Build C executable
-$(EXEC):
+$(EXEC): source/*.c
 	$(MAKE) -C source all
 
 # Build Cython module
