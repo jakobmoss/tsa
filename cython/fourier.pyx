@@ -2,11 +2,18 @@
 # cython: boundscheck=False
 # cython: wraparound=False
 # cython: nonecheck=False
+# cython: cdivision=True
 # distutils: extra_compile_args = -fopenmp -ffast-math -funroll-loops
 # distutils: extra_link_args = -fopenmp
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Time Series Analysis -- Cython module
+#
+# *** Available functions (callable by Python) ***
+# - `calc`: Calculate power spectrum
+#
+# *** Usage ***
+# Compile the module and then just `import fourier`.
 #
 # Author: Jakob Rørsted Mosumgaard
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -18,9 +25,6 @@
 # General
 from __future__ import print_function, with_statement, division
 import numpy as np
-
-# Cython
-from cython cimport boundscheck, wraparound, nonecheck
 
 # External handwritten C-module
 cdef extern from "tsfourier.h" nogil:
@@ -62,13 +66,13 @@ cdef double[::1] arr_sca_copy(double[::1] mvi, double a):
 ###############################################################################
 # Primary auxiliary function
 ###############################################################################
-def powerspec(double[::1] time, double[::1] flux,
-              double low, double high, double rate):
+def _powerspec(double[::1] time, double[::1] flux,
+               double low, double high, double rate):
     """
-    Calculate the power spectrum (fourier transform) using a least mean square
-    method.
+    Cython wrapper for calcuation of fourier transform using fast C code.
 
-    This function is a wrapper for the underlying pure-C function.
+    Note: ALL variables are declared as static Cython types for proper
+    interface with C!
 
     Arguments:
     - `time`: Array with the values of the time
@@ -77,16 +81,19 @@ def powerspec(double[::1] time, double[::1] flux,
     - `high`: The highest test frequency
     - `rate`: The sampling rate (spacing between frequencies)
     """
-    # Cython typing
+    # Generate test cyclic frequencies
+    cdef:
+        double[::1] freq = np.arange(low, high, rate)
+
+    # Arrays for data storage and their length
     cdef:
         double PI2 = 2 * np.pi
-        double[::1] freq = np.arange(low, high, rate)
         int N = time.shape[0]
         int M = freq.shape[0]
         double[::1] ny = np.zeros(M)
         double[::1] powers = np.zeros(M)
     
-    # Convert test cyclic frequencies to angular
+    # Convert cyclic to angular frequencies
     arr_sca(freq, PI2, ny, M)
 
     # Calculate power using external C-function
@@ -103,9 +110,12 @@ def powerspec(double[::1] time, double[::1] flux,
 ###############################################################################
 def calc(infile, freq_start, freq_stop, freq_rate):
     """
-    Interface to calculation of the power spectrum.
+    Calculate the power spectrum using a least mean square method. Returns
+    arrays with test frequencies and corresponding power.
+    The actual calculation is performed by a fast Cython/C function.
 
-    This function prepares the input for the fast Cython/C-function.
+    Usage:
+    frequencies, powers = calc( ... )
 
     Arguments:
     - `infile`: File to read in the format (t [seconds] , data).
@@ -113,24 +123,31 @@ def calc(infile, freq_start, freq_stop, freq_rate):
     - `freq_stop`: The highest test frequency (in microHertz).
     - `freq_rate`: The sampling rate (spacing between frequencies).
     """
+    # Make Cython-typing
     cdef:
         double[::1] t, time, flux, freq, powers
         double ms, low, high, rate
+
+    # PRETTY PRINT
+    print('Calculating the power spectrum of \"{0}\" ...'.format(infile))
     
-    # Set up of power spectrum
+    # Set up of power spectrum -- convert input arguments to static types
     low = freq_start
     high = freq_stop
     rate = freq_rate
 
-    # Load data
+    # Load data into C-style memory block
     t, flux = np.ascontiguousarray(np.loadtxt(infile, unpack=True))
 
     # Convert time to megaseconds
     ms = 1e-6
     time = arr_sca_copy(t, ms)
 
-    # Run power spectrum
-    freq, powers = powerspec(time, flux, low, high, rate)
+    # Call the Cython-wrapper to fast calculation of the power spectrum
+    freq, powers = _powerspec(time, flux, low, high, rate)
 
+    # PRETTY PRINT
+    print('Done!\n')
+    
     # Return
     return freq, powers
