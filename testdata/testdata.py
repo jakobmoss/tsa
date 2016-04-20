@@ -16,7 +16,7 @@ import numpy as np
 ###############################################################################
 # Functions
 ###############################################################################
-def makets(days=14, step=60):
+def makets(days=14, step=60, fortran=False):
     """
     Generate time-series from stellar oscillation data and save to file.
 
@@ -24,6 +24,7 @@ def makets(days=14, step=60):
     - `days`: How many days of data to generate data (default: 14, corresponds
               to approximately 20000 points).
     - `step`: Sampling rate in seconds (default: 60).
+    - `fortran`: Flag for controlling output format (false = exp-format).
     """
 
     # Pretty print
@@ -50,7 +51,11 @@ def makets(days=14, step=60):
 
     # Save
     outfile = 'ts_' + str(days) + 'days.txt'
-    np.savetxt(outfile, np.transpose([t, v]), fmt='%.15e', delimiter='\t')
+    if fortran:
+        np.savetxt(outfile, np.transpose([t, v]), fmt=['%15f', '%18.12f'],
+                   delimiter='\t')
+    else:
+        np.savetxt(outfile, np.transpose([t, v]), fmt='%.15e', delimiter='\t')
 
     # Done!
     print('Done!\n')
@@ -60,7 +65,7 @@ def makets(days=14, step=60):
 # Script
 ###############################################################################
 # Define the time series to generate
-days = [1, 7, 14, 30]
+days = [1, 7, 30, 60]
 
 # Run
 for length in days:
