@@ -42,7 +42,7 @@ void alpbet(double time[], double flux[], double nu, size_t N, double *alpha, do
     // Calculate coefficients
     D = ss*cc - sc*sc;
     *alpha = (s * cc - c * sc)/D;
-	*beta  = (c * ss - s * sc)/D;
+    *beta  = (c * ss - s * sc)/D;
 }
 
 
