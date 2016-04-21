@@ -7,8 +7,6 @@
 #include "arrlib.h"
 #include "tsfourier.h"
 
-#define PI2 6.283185307179586
-
 
 int main(int argc, char *argv[])
 {
@@ -33,44 +31,37 @@ int main(int argc, char *argv[])
 
     // Pretty print
     printf("\nCalculating the power spectrum of \"%s\" ...\n", argv[1]);
+
     
     /* Read data from the file */
-    double* t = malloc(N * sizeof(double));
     double* time = malloc(N * sizeof(double));
     double* flux = malloc(N * sizeof(double));
-    readcols(argv[1], t, flux, N);
-
-    // Convert to mega seconds
-    double s_to_ms = 1e-6;
-    arr_scale(t, s_to_ms, time, N);
+    readcols(argv[1], time, flux, N);
 
     
     /* Prepare for power spectrum */
     // Get length of sampling vector
     M = arr_util_getstep(low, high, rate);
 
-    // Fill sampling vector (in both cyclic and angular frequency)
-    double* freq = malloc(M * sizeof(double)); // Cyclic
+    // Fill sampling vector with cyclic frequencies
+    double* freq = malloc(M * sizeof(double));
     arr_init_linspace(freq, low, rate, M);
-    double* ny = malloc(M * sizeof(double)); // Angular
-    arr_scale(freq, PI2, ny, M);
 
     // Initialise arrays for data storage
     double* power = malloc(M * sizeof(double));
 
     
     /* Calculate power spectrum */
-    fourier(time, flux, ny, N, M, power);
+    fourier(time, flux, freq, N, M, power);
 
+    
     /* Write data to file */
     writecols(argv[2], freq, power, M);
 
     /* Free data */
-    free(t);
     free(time);
     free(flux);
     free(freq);
-    free(ny);
     free(power);
         
     /* Done! */

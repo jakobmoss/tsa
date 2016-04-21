@@ -90,16 +90,12 @@ def _powerspec(double[::1] time, double[::1] flux,
         double PI2 = 2 * np.pi
         int N = time.shape[0]
         int M = freq.shape[0]
-        double[::1] ny = np.zeros(M)
         double[::1] powers = np.zeros(M)
     
-    # Convert cyclic to angular frequencies
-    arr_sca(freq, PI2, ny, M)
-
     # Calculate power using external C-function
     #  --> Temporary deactivate the Python memory management for performance
     with nogil:
-        fourier(&time[0], &flux[0], &ny[0], N, M, &powers[0])
+        fourier(&time[0], &flux[0], &freq[0], N, M, &powers[0])
 
     # Return an array of test (cyclic) frequencies and the calculated power
     return freq, powers
@@ -125,7 +121,7 @@ def calc(infile, freq_start, freq_stop, freq_rate):
     """
     # Make Cython-typing
     cdef:
-        double[::1] t, time, flux, freq, powers
+        double[::1] time, flux, freq, powers
         double ms, low, high, rate
 
     # PRETTY PRINT
@@ -137,11 +133,7 @@ def calc(infile, freq_start, freq_stop, freq_rate):
     rate = freq_rate
 
     # Load data into C-style memory block
-    t, flux = np.ascontiguousarray(np.loadtxt(infile, unpack=True))
-
-    # Convert time to megaseconds
-    ms = 1e-6
-    time = arr_sca_copy(t, ms)
+    time, flux = np.ascontiguousarray(np.loadtxt(infile, unpack=True))
 
     # Call the Cython-wrapper to fast calculation of the power spectrum
     freq, powers = _powerspec(time, flux, low, high, rate)
