@@ -1,6 +1,6 @@
-# README #
+# Time Series Analysis #
 
-Software for performing Time Series Analysis written in C, Cython and Python.
+Software for performing Time Series Analysis (targeted at astrophysical applications) written in C, Cython and Python.
 
 Author: Jakob Rørsted Mosumgaard (jakob@phys.au.dk).
 
