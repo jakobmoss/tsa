@@ -20,18 +20,25 @@ int main(int argc, char *argv[])
     double high = 4100.0;
     double rate = 0.1;
 
+    // Filenames
+    char inname[100];
+    char outname[100];
+
     
     /* Process command line arguments and return line count of the input file */
-    N = cmdarg(argc, argv);
+    N = cmdarg(argc, argv, inname, outname);
     
     // Pretty print
     printf("\nCalculating the power spectrum of \"%s\" ...\n", argv[1]);
+
+    // TESTING
+    printf("\nInput: \"%s\" \nOutput: \"%s\"\n\n", inname, outname);
 
     
     /* Read data from the file */
     double* time = malloc(N * sizeof(double));
     double* flux = malloc(N * sizeof(double));
-    readcols(argv[1], time, flux, N);
+    readcols(inname, time, flux, N);
 
     
     /* Prepare for power spectrum */
@@ -51,7 +58,7 @@ int main(int argc, char *argv[])
 
     
     /* Write data to file */
-    writecols(argv[2], freq, power, M);
+    writecols(outname, freq, power, M);
 
     /* Free data */
     free(time);

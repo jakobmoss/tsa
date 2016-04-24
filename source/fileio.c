@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 
 /* Check command-line argument and count lines in given file */
-int cmdarg(int argc, char *argv[])
+int cmdarg(int argc, char *argv[], char inname[], char outname[])
 {
     // Quit if wrong number of arguments is given!
     if (argc != 3) {
@@ -27,7 +28,11 @@ int cmdarg(int argc, char *argv[])
     } while (ch != EOF);
     if(ch != '\n' && number_of_lines != 0)
         number_of_lines++;
-    
+
+    // TESTING
+    strcpy(inname, argv[1]);
+    strcpy(outname, argv[2]);
+        
     // Close file and save number of actual lines
     fclose(tmpfile);
     return number_of_lines - 1;
