@@ -4,7 +4,8 @@
 
 
 /* Check command-line argument and count lines in given file */
-int cmdarg(int argc, char *argv[], char inname[], char outname[], int *quiet)
+int cmdarg(int argc, char *argv[], char inname[], char outname[], int *quiet,\
+           int *unit)
 {
     // Init
     int inread = 1;
@@ -20,6 +21,12 @@ int cmdarg(int argc, char *argv[], char inname[], char outname[], int *quiet)
         // Optional arguments
         if ( strcmp(argv[i], "-q") == 0 ) {
             *quiet = 1;
+        }
+        else if ( strcmp(argv[i], "-tsec") == 0 ) {
+            *unit = 1;
+        }
+        else if ( strcmp(argv[i], "-tday") == 0 ) {
+            *unit = 2;
         }
         // Non-optional arguments (filenames)
         else {

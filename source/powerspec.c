@@ -26,10 +26,11 @@ int main(int argc, char *argv[])
 
     // Options
     int quiet = 0;
+    int unit = 1;
 
     
     /* Process command line arguments and return line count of the input file */
-    N = cmdarg(argc, argv, inname, outname, &quiet);
+    N = cmdarg(argc, argv, inname, outname, &quiet, &unit);
     
     // Pretty print
     if ( quiet == 0 ) {
