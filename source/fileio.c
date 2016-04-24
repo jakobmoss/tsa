@@ -9,7 +9,7 @@ int countlines(int argc, char *argv[])
 
     // Check if file can be opened
     if ( tmpfile == 0 ) {
-        printf( "Could not open file:  %s \n", argv[0]);
+        fprintf(stderr,"Could not open file:  %s \n", argv[1]);
     }
     // If yes: read through file and handle files not ending in newline
     else {

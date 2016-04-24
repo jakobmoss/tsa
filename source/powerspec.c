@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
     
     /* Get filename from command line and count the number of lines */
     if (argc != 3) {
-        printf("Usage: %s  path/to/data  path/to/output\n", argv[0]);
+        fprintf(stderr, "usage: %s  path/to/data  path/to/output\n", argv[0]);
     }
     else {
         N = countlines(argc, argv);
