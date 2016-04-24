@@ -24,15 +24,18 @@ int main(int argc, char *argv[])
     char inname[100];
     char outname[100];
 
+    // Options
+    int quiet = 0;
+
     
     /* Process command line arguments and return line count of the input file */
-    N = cmdarg(argc, argv, inname, outname);
+    N = cmdarg(argc, argv, inname, outname, &quiet);
     
     // Pretty print
-    printf("\nCalculating the power spectrum of \"%s\" ...\n", argv[1]);
+    printf("\nCalculating the power spectrum of \"%s\" ...\n", inname);
 
     // TESTING
-    printf("\nInput: \"%s\" \nOutput: \"%s\"\n\n", inname, outname);
+    printf("\nQuiet: %i \n\n", quiet);
 
     
     /* Read data from the file */

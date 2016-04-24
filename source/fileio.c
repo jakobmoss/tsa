@@ -4,19 +4,40 @@
 
 
 /* Check command-line argument and count lines in given file */
-int cmdarg(int argc, char *argv[], char inname[], char outname[])
+int cmdarg(int argc, char *argv[], char inname[], char outname[], int *quiet)
 {
+    // Init
+    int inread = 1;
+    
     // Quit if wrong number of arguments is given!
-    if (argc != 3) {
-        fprintf(stderr, "usage: %s  path/to/data  path/to/output\n", argv[0]);
+    if (argc < 3) {
+        fprintf(stderr, "usage: %s  [-q] path/to/data  path/to/output\n", argv[0]);
         exit(1);
+    }
+
+    // Loop through given arguments (skipping program name)
+    for (int i = 1; i < argc; ++i) {
+        // Optional arguments
+        if ( strcmp(argv[i], "-q") == 0 ) {
+            *quiet = 1;
+        }
+        // Non-optional arguments (filenames)
+        else {
+            if (inread == 1) {
+                strcpy(inname, argv[i]);
+                inread = 0;
+            }
+            else {
+                strcpy(outname, argv[i]);
+            }
+        }
     }
 
     // Read file and quit if it cannot be opened
     size_t ch, number_of_lines = 0;
-    FILE* tmpfile = fopen(argv[1], "r");
+    FILE* tmpfile = fopen(inname, "r");
     if ( tmpfile == 0 ) {
-        fprintf(stderr,"Could not open file:  %s \n", argv[1]);
+        fprintf(stderr,"Could not open file:  %s \n", inname);
         exit(1);
     }
     
@@ -29,10 +50,6 @@ int cmdarg(int argc, char *argv[], char inname[], char outname[])
     if(ch != '\n' && number_of_lines != 0)
         number_of_lines++;
 
-    // TESTING
-    strcpy(inname, argv[1]);
-    strcpy(outname, argv[2]);
-        
     // Close file and save number of actual lines
     fclose(tmpfile);
     return number_of_lines - 1;
