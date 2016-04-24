@@ -32,12 +32,11 @@ int main(int argc, char *argv[])
     N = cmdarg(argc, argv, inname, outname, &quiet);
     
     // Pretty print
-    printf("\nCalculating the power spectrum of \"%s\" ...\n", inname);
+    if ( quiet == 0 ) {
+        printf("\nCalculating the power spectrum of \"%s\" ...\n", inname);
+    }
 
-    // TESTING
-    printf("\nQuiet: %i \n\n", quiet);
 
-    
     /* Read data from the file */
     double* time = malloc(N * sizeof(double));
     double* flux = malloc(N * sizeof(double));
@@ -70,6 +69,8 @@ int main(int argc, char *argv[])
     free(power);
         
     /* Done! */
-    printf("Done!\n\n");
+    if ( quiet == 0 ) {
+        printf("Done!\n\n");
+    }
     return 0; 
 }
