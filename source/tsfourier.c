@@ -4,7 +4,7 @@
 
 #include <omp.h>
 
-#define PI2mic 6.2831853071795864769252867665590057683943387987502116419e-6
+#define PI2micro 6.2831853071795864769252867665590057683943387987502116419e-6
 
 // Auxialiary: Calculate alpha and beta coefficients
 void alpbet(double time[], double flux[], double ny, size_t N, double *alpha, double *beta)
@@ -63,12 +63,12 @@ void fourier(double time[], double flux[], double freq[], size_t N, size_t M, \
     double ny = 0;
     size_t i;
 
-#pragma omp parallel default(shared) private(alpha, beta, ny)
+    #pragma omp parallel default(shared) private(alpha, beta, ny)
     {
-#pragma omp for schedule(static)
+        #pragma omp for schedule(static)
         for (i = 0; i < M; ++i) {
             // Current frequency
-            ny = freq[i] * PI2mic;
+            ny = freq[i] * PI2micro;
 
             // Calculate alpha and beta
             alpbet(time, flux, ny, N, &alpha, &beta);
