@@ -21,14 +21,9 @@ int main(int argc, char *argv[])
     double rate = 0.1;
 
     
-    /* Get filename from command line and count the number of lines */
-    if (argc != 3) {
-        fprintf(stderr, "usage: %s  path/to/data  path/to/output\n", argv[0]);
-    }
-    else {
-        N = countlines(argc, argv);
-    }
-
+    /* Process command line arguments and return line count of the input file */
+    N = cmdarg(argc, argv);
+    
     // Pretty print
     printf("\nCalculating the power spectrum of \"%s\" ...\n", argv[1]);
 

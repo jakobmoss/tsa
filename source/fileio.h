@@ -1,4 +1,4 @@
-int countlines(int argc, char *argv[]);
+int cmdarg(int argc, char *argv[]);
 
 void readcols(char *fname, double x[], double y[], size_t N);
 

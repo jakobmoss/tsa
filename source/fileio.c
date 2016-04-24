@@ -1,26 +1,33 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 
 /* Check command-line argument and count lines in given file */
-int countlines(int argc, char *argv[])
+int cmdarg(int argc, char *argv[])
 {
+    // Quit if wrong number of arguments is given!
+    if (argc != 3) {
+        fprintf(stderr, "usage: %s  path/to/data  path/to/output\n", argv[0]);
+        exit(1);
+    }
+
+    // Read file and quit if it cannot be opened
     size_t ch, number_of_lines = 0;
     FILE* tmpfile = fopen(argv[1], "r");
-
-    // Check if file can be opened
     if ( tmpfile == 0 ) {
         fprintf(stderr,"Could not open file:  %s \n", argv[1]);
+        exit(1);
     }
-    // If yes: read through file and handle files not ending in newline
-    else {
-        do {
-            ch = fgetc(tmpfile);
-            if(ch == '\n')
-                number_of_lines++;
-        } while (ch != EOF);
-        if(ch != '\n' && number_of_lines != 0)
+    
+    // Go through file and handle files not ending in newline
+    do {
+        ch = fgetc(tmpfile);
+        if(ch == '\n')
             number_of_lines++;
-    }
+    } while (ch != EOF);
+    if(ch != '\n' && number_of_lines != 0)
+        number_of_lines++;
+    
     // Close file and save number of actual lines
     fclose(tmpfile);
     return number_of_lines - 1;
