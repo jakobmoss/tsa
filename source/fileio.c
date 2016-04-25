@@ -77,6 +77,29 @@ void readcols(char *fname, double x[], double y[], size_t N, int unit)
         }
     }
     fclose(infile);
+
+    // Convert unit into seconds
+    if ( unit != 1 ) {
+        double scaling = 1;
+        
+        // Days
+        if ( unit == 2 ) {
+            scaling = 86400.0;
+        }
+        // Mega seconds
+        else if ( unit == 3 ) {
+            scaling = 1e6;
+        }
+        // Failure -- keep scaling of 1
+        else {
+            fprintf(stderr,"Error: Wrong unit. Assuming seconds.\n");
+        }
+
+        // Apply to the time vector
+        for (size_t j = 0; j < N+1; ++j) {
+            x[j] *= scaling;
+        }
+    }
 }
 
 
