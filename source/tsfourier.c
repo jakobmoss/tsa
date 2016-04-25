@@ -16,8 +16,11 @@ void alpbet(double time[], double flux[], double ny, size_t N, double *alpha, do
     double s = 0;
     double c = 0;
     double cc = 0;
-    double ss = 0;
     double sc = 0;
+    double ss;
+
+    // TEMPORARY (until weights are used)
+    double wsum = N;
 
     // Loop over the time series
     for (size_t i = 0; i < N; ++i) {
@@ -30,11 +33,12 @@ void alpbet(double time[], double flux[], double ny, size_t N, double *alpha, do
         c += flux[i] * cn;
 
         // Calculate squared and cross terms
-        ss += sn * sn;
         cc += cn * cn;
         sc += sn * cn;
-        
     }
+
+    // Calculate ss from cc
+    ss = wsum - cc;
 
     // Calculate coefficients
     D = ss*cc - sc*sc;
