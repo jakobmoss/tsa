@@ -5,14 +5,14 @@
 
 /* Check command-line argument and count lines in given file */
 int cmdarg(int argc, char *argv[], char inname[], char outname[], int *quiet,\
-           int *unit)
+           int *unit, int *prep)
 {
     // Init
     int inread = 1;
     
     // Quit if wrong number of arguments is given!
     if (argc < 3) {
-        fprintf(stderr, "usage: %s  [-q] [-t{sec|day|ms}] path/to/data  path/to/output\n", argv[0]);
+        fprintf(stderr, "usage: %s  [-q] [-t{sec|day|ms}] [-noprep] path/to/data  path/to/output\n", argv[0]);
         exit(1);
     }
 
@@ -28,8 +28,8 @@ int cmdarg(int argc, char *argv[], char inname[], char outname[], int *quiet,\
         else if ( strcmp(argv[i], "-tday") == 0 ) {
             *unit = 2;
         }
-        else if ( strcmp(argv[i], "-tms") == 0 ) {
-            *unit = 3;
+        else if ( strcmp(argv[i], "-noprep") == 0 ) {
+            *prep = 0;
         }
         // Non-optional arguments (filenames)
         else {

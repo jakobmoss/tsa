@@ -34,18 +34,16 @@ int main(int argc, char *argv[])
     N = cmdarg(argc, argv, inname, outname, &quiet, &unit, &prep);
     
     // Pretty print
-    if ( quiet == 0 ) {
+    if ( quiet == 0 )
         printf("\nCalculating the power spectrum of \"%s\" ...\n", inname);
-    }
 
 
     /* Read data from the file */
+    if ( quiet == 0 ) printf(" - Reading input\n");
     double* time = malloc(N * sizeof(double));
     double* flux = malloc(N * sizeof(double));
     readcols(inname, time, flux, N, unit);
 
-    printf("mean(flux) = %lf\n", arr_mean(flux, N));
-    
     
     /* Prepare for power spectrum */
     // Get length of sampling vector
@@ -58,12 +56,22 @@ int main(int argc, char *argv[])
     // Initialise arrays for data storage
     double* power = malloc(M * sizeof(double));
 
+    // Subtract the mean to avoid "zero-frequency" problems
+    if ( prep != 0 ) {
+        if ( quiet == 0 ) printf(" - Subtracting the mean from time series\n");
+        arr_sca_add(flux, -arr_mean(flux, N), N);
+    }
+    else {
+        if ( quiet == 0 ) printf(" - Time series used *without* mean subtraction!\n");
+    }
     
     /* Calculate power spectrum */
+    if ( quiet == 0 ) printf(" - Calculating fourier transform\n");
     fourier(time, flux, freq, N, M, power);
 
     
     /* Write data to file */
+    if ( quiet == 0 ) printf(" - Saving to file\n");
     writecols(outname, freq, power, M);
 
     /* Free data */
@@ -73,8 +81,6 @@ int main(int argc, char *argv[])
     free(power);
         
     /* Done! */
-    if ( quiet == 0 ) {
-        printf("Done!\n\n");
-    }
+    if ( quiet == 0 ) printf("Done!\n\n");
     return 0; 
 }
