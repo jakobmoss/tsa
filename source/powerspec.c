@@ -44,6 +44,16 @@ int main(int argc, char *argv[])
     double* flux = malloc(N * sizeof(double));
     readcols(inname, time, flux, N, unit);
 
+    // Calculate and print Nyquist frequency
+    if ( quiet == 0 ) {
+        double* dt = malloc(N-1 * sizeof(double));
+        double nyquist;
+        arr_diff(time, dt, N);
+        nyquist = 1.0 / (2.0 * arr_median(dt, N-1));
+        printf(" -- INFO: Nyquist frequency = %.2lf microHz\n", 1e6*nyquist);
+        free(dt);
+    }
+    
     
     /* Prepare for power spectrum */
     // Get length of sampling vector

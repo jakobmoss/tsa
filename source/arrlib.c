@@ -1,5 +1,8 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
+#include <string.h>
+
 
 /* ~~~~~ Initialisations ~~~~~ */
 
@@ -74,6 +77,42 @@ double arr_mean(double x[], size_t N)
     return mean;
 }
 
+// Median of all elements in array
+double arr_median(double x[], size_t N)
+{
+    double median, temp;
+
+    // Copy of array to preserve original
+    double* y = malloc(N * sizeof(double));
+    memcpy(y, x, N * sizeof(double));
+
+    // Sort array in ascending order
+    for (size_t i = 0; i < N-1; ++i) {
+        for (size_t j = i+1; j < N; ++j) {
+            // Swap elements
+            if ( y[j] < y[i] ) {
+                temp = y[i];
+                y[i] = y[j];
+                y[j] = temp;
+            }
+        }
+    }
+
+    // Median depends on even/uneven number of elements
+    //  - Even: Mean of the two elements in the middle
+    //  - Odd : Element in the middle
+    if ( N % 2 == 0 ) {
+        median = (y[N/2] + y[N/2 - 1]) / 2.0;
+    }
+    else {
+        median = y[N/2];
+    }
+    
+    // Done
+    free(y);
+    return median;
+}
+
 
 
 /* ~~~~~ Array operations on single array ~~~~~ */
@@ -107,6 +146,15 @@ void arr_sca_add(double x[], double a, size_t N)
 {
     for (int i = 0; i < N; ++i) {
         x[i] += a;
+    }
+}
+
+// Find the difference between elements in x and store in y.
+// - NB: y should have the length N-1
+void arr_diff(double x[], double y[], size_t N)
+{
+    for (int i = 0; i < N-1; ++i) {
+        y[i] = x[i+1] - x[i];
     }
 }
 
