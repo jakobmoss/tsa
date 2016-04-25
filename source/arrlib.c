@@ -60,6 +60,20 @@ double arr_sumsq(double x[], size_t N)
     return sum;
 }
 
+// Average (mean) of elements in array
+double arr_mean(double x[], size_t N)
+{
+    double sum = 0.0;
+    double mean;
+    
+    for (int i = 0; i < N; ++i) {
+        sum += x[i];
+    }
+    mean = (double) sum / N;
+
+    return mean;
+}
+
 
 
 /* ~~~~~ Array operations on single array ~~~~~ */
@@ -85,6 +99,14 @@ void arr_scale(double x[], double a, double y[], size_t N)
 {
     for (int i = 0; i < N; ++i) {
         y[i] = x[i] * a;
+    }
+}
+
+// Add scalar a to array x and store in y
+void arr_sca_add(double x[], double a, double y[], size_t N)
+{
+    for (int i = 0; i < N; ++i) {
+        y[i] = x[i] + a;
     }
 }
 
