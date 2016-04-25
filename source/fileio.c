@@ -12,7 +12,7 @@ int cmdarg(int argc, char *argv[], char inname[], char outname[], int *quiet,\
     
     // Quit if wrong number of arguments is given!
     if (argc < 3) {
-        fprintf(stderr, "usage: %s  [-q] path/to/data  path/to/output\n", argv[0]);
+        fprintf(stderr, "usage: %s  [-q] [-t{sec|day|ms}] path/to/data  path/to/output\n", argv[0]);
         exit(1);
     }
 
@@ -27,6 +27,9 @@ int cmdarg(int argc, char *argv[], char inname[], char outname[], int *quiet,\
         }
         else if ( strcmp(argv[i], "-tday") == 0 ) {
             *unit = 2;
+        }
+        else if ( strcmp(argv[i], "-tms") == 0 ) {
+            *unit = 3;
         }
         // Non-optional arguments (filenames)
         else {
@@ -64,20 +67,16 @@ int cmdarg(int argc, char *argv[], char inname[], char outname[], int *quiet,\
 
 
 /* Read file with two columns of data */
-void readcols(char *fname, double x[], double y[], size_t N)
+void readcols(char *fname, double x[], double y[], size_t N, int unit)
 {
+    // Read the file
     FILE* infile = fopen(fname, "r");
-
-    // Check if file exists and loop through
-    if (infile != NULL) {
-        size_t i;
-        for (i = 0; i < N+1; ++i) {
-            if ( fscanf(infile ,"%lf%lf", &x[i], &y[i] ) != 2) {
-               break;
-            }
-         }
-        fclose(infile);
+    for (size_t i = 0; i < N+1; ++i) {
+        if ( fscanf(infile ,"%lf%lf", &x[i], &y[i] ) != 2) {
+            break;
+        }
     }
+    fclose(infile);
 }
 
 

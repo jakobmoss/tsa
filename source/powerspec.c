@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
     /* Read data from the file */
     double* time = malloc(N * sizeof(double));
     double* flux = malloc(N * sizeof(double));
-    readcols(inname, time, flux, N);
+    readcols(inname, time, flux, N, unit);
 
     
     /* Prepare for power spectrum */
