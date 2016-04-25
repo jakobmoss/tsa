@@ -27,10 +27,11 @@ int main(int argc, char *argv[])
     // Options
     int quiet = 0;
     int unit = 1;
+    int prep = 1;
 
     
     /* Process command line arguments and return line count of the input file */
-    N = cmdarg(argc, argv, inname, outname, &quiet, &unit);
+    N = cmdarg(argc, argv, inname, outname, &quiet, &unit, &prep);
     
     // Pretty print
     if ( quiet == 0 ) {
@@ -43,6 +44,8 @@ int main(int argc, char *argv[])
     double* flux = malloc(N * sizeof(double));
     readcols(inname, time, flux, N, unit);
 
+    printf("mean(flux) = %lf\n", arr_mean(flux, N));
+    
     
     /* Prepare for power spectrum */
     // Get length of sampling vector

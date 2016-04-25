@@ -20,7 +20,7 @@ void arr_sin(double x[], double y[], size_t N);
 
 void arr_scale(double x[], double a, double y[], size_t N);
 
-void arr_sca_add(double x[], double a, double y[], size_t N);
+void arr_sca_add(double x[], double a, size_t N);
 
 
 void arr_mult(double x[], double y[], double z[], size_t N);

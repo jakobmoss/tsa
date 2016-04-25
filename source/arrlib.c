@@ -102,11 +102,11 @@ void arr_scale(double x[], double a, double y[], size_t N)
     }
 }
 
-// Add scalar a to array x and store in y
-void arr_sca_add(double x[], double a, double y[], size_t N)
+// Add scalar a to array x -- IN-PLACE
+void arr_sca_add(double x[], double a, size_t N)
 {
     for (int i = 0; i < N; ++i) {
-        y[i] = x[i] + a;
+        x[i] += a;
     }
 }
 
