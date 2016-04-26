@@ -5,42 +5,65 @@
 
 /* Check command-line argument and count lines in given file */
 int cmdarg(int argc, char *argv[], char inname[], char outname[], int *quiet,\
-           int *unit, int *prep)
+           int *unit, int *prep, double *low, double *high, double *rate)
 {
     // Init
-    int inread = 1;
+    int samp = 0;
     
     // Quit if wrong number of arguments is given!
     if (argc < 3) {
-        fprintf(stderr, "usage: %s  [-q] [-t{sec|day|ms}] [-noprep] path/to/data  path/to/output\n", argv[0]);
+        fprintf(stderr, "usage: %s  [-q] [-t{sec|day|ms}] [-noprep] [-f low high rate] input_file  output_file\n", argv[0]);
         exit(1);
     }
 
     // Loop through given arguments (skipping program name)
     for (int i = 1; i < argc; ++i) {
         // Optional arguments
+        // Quiet-mode
         if ( strcmp(argv[i], "-q") == 0 ) {
             *quiet = 1;
         }
+        // Units
         else if ( strcmp(argv[i], "-tsec") == 0 ) {
             *unit = 1;
         }
         else if ( strcmp(argv[i], "-tday") == 0 ) {
             *unit = 2;
         }
+        // Modify data
         else if ( strcmp(argv[i], "-noprep") == 0 ) {
             *prep = 0;
         }
-        // Non-optional arguments (filenames)
-        else {
-            if (inread == 1) {
-                strcpy(inname, argv[i]);
-                inread = 0;
-            }
-            else {
-                strcpy(outname, argv[i]);
+        // Sampling
+        else if ( strcmp(argv[i], "-f") == 0 ) {
+            samp = 1;
+
+            // Check that enough arguments is left
+            if ( i + 4 <= argc - 1) {
+                // Increment i and read the values
+                i++;
+                *low = atof(argv[i]);
+                i++;
+                *high = atof(argv[i]);
+                i++;
+                *rate = atof(argv[i]);
             }
         }
+        // Non-optional arguments (filenames)
+        else {
+            // Read input file
+            strcpy(inname, argv[i]);
+
+            // Increment i and read output file
+            i++;
+            strcpy(outname, argv[i]);
+        }
+    }
+
+    // AT THE MOMENT EXIT IF NO SAMPLING IS PROVIDED!
+    if ( samp == 0 ) {
+        fprintf(stderr, "No sampling provided! Unsupported option!\n");
+        exit(1);
     }
 
     // Read file and quit if it cannot be opened

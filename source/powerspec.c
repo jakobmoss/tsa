@@ -15,14 +15,12 @@ int main(int argc, char *argv[])
     size_t N = 0;  // Length of time series
     size_t M = 0;  // Length of sampling vector (number of frequencies)
 
-    // Sampling
-    double low = 1900.0;
-    double high = 4100.0;
-    double rate = 0.1;
-
     // Filenames
     char inname[100];
     char outname[100];
+
+    // Sampling
+    double low, high, rate;
 
     // Options
     int quiet = 0;
@@ -31,7 +29,8 @@ int main(int argc, char *argv[])
 
     
     /* Process command line arguments and return line count of the input file */
-    N = cmdarg(argc, argv, inname, outname, &quiet, &unit, &prep);
+    N = cmdarg(argc, argv, inname, outname, &quiet, &unit, &prep, &low, &high,\
+               &rate);
     
     // Pretty print
     if ( quiet == 0 )
@@ -76,7 +75,10 @@ int main(int argc, char *argv[])
     }
     
     /* Calculate power spectrum */
-    if ( quiet == 0 ) printf(" - Calculating fourier transform\n");
+    if ( quiet == 0 ){
+        printf(" - Calculating fourier transform\n");
+        printf(" -- INFO: Sampling (in microHz): %.2lf to %.2lf in steps of %.2lf\n", low, high, rate);
+    }
     fourier(time, flux, freq, N, M, power);
 
     

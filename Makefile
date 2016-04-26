@@ -31,7 +31,7 @@ cython:
 test: $(EXEC) data
 	@mkdir -p output
 	@printf "\n" 
-	time ./$(EXEC) testdata/ts_$(DAYS)days.txt output/ctest.txt
+	time ./$(EXEC) -f 1900 4100 0.1 testdata/ts_$(DAYS)days.txt output/ctest.txt
 	@printf "\n" 
 	cp output/ctest.txt test/
 	$(MAKE) -C test default
