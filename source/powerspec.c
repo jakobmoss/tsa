@@ -26,11 +26,12 @@ int main(int argc, char *argv[])
     int quiet = 0;
     int unit = 1;
     int prep = 1;
+    int autosamp = 0;
 
     
     /* Process command line arguments and return line count of the input file */
     N = cmdarg(argc, argv, inname, outname, &quiet, &unit, &prep, &low, &high,\
-               &rate);
+               &rate, &autosamp);
     
     // Pretty print
     if ( quiet == 0 )
@@ -41,16 +42,22 @@ int main(int argc, char *argv[])
     if ( quiet == 0 ) printf(" - Reading input\n");
     double* time = malloc(N * sizeof(double));
     double* flux = malloc(N * sizeof(double));
-    readcols(inname, time, flux, N, unit);
+    readcols(inname, time, flux, N, unit, quiet);
 
-    // Calculate and print Nyquist frequency
-    if ( quiet == 0 ) {
-        double* dt = malloc(N-1 * sizeof(double));
-        double nyquist;
-        arr_diff(time, dt, N);
-        nyquist = 1.0 / (2.0 * arr_median(dt, N-1));
-        printf(" -- INFO: Nyquist frequency = %.2lf microHz\n", 1e6*nyquist);
-        free(dt);
+    // Calculate Nyquist frequency
+    double* dt = malloc(N-1 * sizeof(double));
+    double nyquist;
+    arr_diff(time, dt, N);
+    nyquist = 1.0 / (2.0 * arr_median(dt, N-1)) * 1e6; // microHz !
+    free(dt);
+
+    // Display Nyquist?
+    if ( quiet == 0 )
+        printf(" -- INFO: Nyquist frequency = %.2lf microHz\n", nyquist);
+
+    // Apply automatic sampling?
+    if ( autosamp != 0 ) {
+        high = nyquist;
     }
     
     
@@ -77,13 +84,18 @@ int main(int argc, char *argv[])
     /* Calculate power spectrum */
     if ( quiet == 0 ){
         printf(" - Calculating fourier transform\n");
-        printf(" -- INFO: Sampling (in microHz): %.2lf to %.2lf in steps of %.2lf\n", low, high, rate);
+        if ( autosamp != 0 ) {
+            printf(" -- NB: Using automatic sampling!\n");
+            printf(" -- INFO: Auto-sampling (in microHz): %.2lf to %.2lf in steps of %.2lf\n", low, high, rate);
+        }
+        else
+            printf(" -- INFO: Sampling (in microHz): %.2lf to %.2lf in steps of %.2lf\n", low, high, rate);
     }
     fourier(time, flux, freq, N, M, power);
 
     
     /* Write data to file */
-    if ( quiet == 0 ) printf(" - Saving to file\n");
+    if ( quiet == 0 ) printf(" - Saving to file \"%s\"\n", outname);
     writecols(outname, freq, power, M);
 
     /* Free data */

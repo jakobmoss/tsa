@@ -5,14 +5,15 @@
 
 /* Check command-line argument and count lines in given file */
 int cmdarg(int argc, char *argv[], char inname[], char outname[], int *quiet,\
-           int *unit, int *prep, double *low, double *high, double *rate)
+           int *unit, int *prep, double *low, double *high, double *rate,\
+           int *autosamp)
 {
     // Init
     int samp = 0;
     
     // Quit if wrong number of arguments is given!
-    if (argc < 3) {
-        fprintf(stderr, "usage: %s  [-q] [-t{sec|day|ms}] [-noprep] [-f low high rate] input_file  output_file\n", argv[0]);
+    if (argc < 5) {
+        fprintf(stderr, "usage: %s  [-q] [-t{sec|day|ms}] [-noprep] -f {auto | low high rate} input_file  output_file\n", argv[0]);
         exit(1);
     }
 
@@ -20,28 +21,42 @@ int cmdarg(int argc, char *argv[], char inname[], char outname[], int *quiet,\
     for (int i = 1; i < argc; ++i) {
         // Optional arguments
         // Quiet-mode
-        if ( strcmp(argv[i], "-q") == 0 ) {
+        if ( strcmp(argv[i], "-q" ) == 0 ) {
             *quiet = 1;
         }
         // Units
-        else if ( strcmp(argv[i], "-tsec") == 0 ) {
+        else if ( strcmp(argv[i], "-tsec" ) == 0 ) {
             *unit = 1;
         }
-        else if ( strcmp(argv[i], "-tday") == 0 ) {
+        else if ( strcmp(argv[i], "-tday" ) == 0 ) {
             *unit = 2;
         }
+        else if ( strcmp(argv[i], "-tms" ) == 0 ) {
+            *unit = 3;
+        }
         // Modify data
-        else if ( strcmp(argv[i], "-noprep") == 0 ) {
+        else if ( strcmp(argv[i], "-noprep" ) == 0 ) {
             *prep = 0;
         }
         // Sampling
-        else if ( strcmp(argv[i], "-f") == 0 ) {
-            samp = 1;
+        else if ( strcmp(argv[i], "-f" ) == 0 ) {
+            // Get to first option
+            i++;
+            
+            // Check for automatic sampling
+            if ( strcmp(argv[i], "auto") == 0) {
+                samp = 1;
+                *autosamp = 1;
 
-            // Check that enough arguments is left
-            if ( i + 4 <= argc - 1) {
-                // Increment i and read the values
-                i++;
+                // Apply default values for low and rate (high is Nyquist)
+                *low = 10.0;
+                *rate = 1.0;
+            }
+            // If manual, check that enough arguments is left
+            else if ( i + 4 <= argc - 1) {
+                samp = 2;
+                
+                // Read the values and increment i
                 *low = atof(argv[i]);
                 i++;
                 *high = atof(argv[i]);
@@ -90,7 +105,8 @@ int cmdarg(int argc, char *argv[], char inname[], char outname[], int *quiet,\
 
 
 /* Read file with two columns of data */
-void readcols(char *fname, double x[], double y[], size_t N, int unit)
+void readcols(char *fname, double x[], double y[], size_t N, int unit,\
+              int quiet)
 {
     // Read the file
     FILE* infile = fopen(fname, "r");
@@ -108,10 +124,12 @@ void readcols(char *fname, double x[], double y[], size_t N, int unit)
         // Days
         if ( unit == 2 ) {
             scaling = 86400.0;
+            if ( quiet == 0 ) printf(" -- INFO: Unit is %s\n", "days");
         }
         // Mega seconds
         else if ( unit == 3 ) {
             scaling = 1e6;
+            if ( quiet == 0 ) printf(" -- INFO: Unit is %s\n", "megaseconds");
         }
         // Failure -- keep scaling of 1
         else {
@@ -122,6 +140,9 @@ void readcols(char *fname, double x[], double y[], size_t N, int unit)
         for (size_t j = 0; j < N+1; ++j) {
             x[j] *= scaling;
         }
+    }
+    else {
+        if ( quiet == 0 ) printf(" -- INFO: Unit is %s\n", "seconds");
     }
 }
 
