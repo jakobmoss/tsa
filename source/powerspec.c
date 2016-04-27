@@ -1,3 +1,27 @@
+/*  ~~~ Time Series Analysis -- Power Spectrum using Least Squares ~~~
+ *
+ * Usage:
+ * powerspec.x [options] sampling inputfile outputfile
+ *
+ * Sampling: -f {auto | low high rate}
+ *   auto: Low-resolution sampling until the Nyquist frequency (auto is a key-
+ *         word, use as "-f auto").
+ *   low high rate: Values for sampling in microHz (e.g. "-f 1500 4000 0.1", to
+ *                  sample from 1500 to 4000 microHz in steps of 0.1 microHz).
+ *
+ * Options:
+ *  -q: Quiet-mode. No output to console.
+ *  -t{sec|day|ms}: Unit of input file (seconds [default], days, megaseconds).
+ *  -noprep: Do not subtract the mean of time series (for artificial data where
+ *           the mean is 0).
+ *
+ * Note:
+ * Using multi-threading with OpenMP. Set number of threads used by the shell
+ * variable "OMP_NUM_THREADS".
+ *
+ * Author: Jakob Rørsted Mosumgaard
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -59,7 +83,7 @@ int main(int argc, char *argv[])
     if ( autosamp != 0 ) {
         high = nyquist;
     }
-    
+
     
     /* Prepare for power spectrum */
     // Get length of sampling vector
