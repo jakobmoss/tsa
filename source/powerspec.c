@@ -4,8 +4,8 @@
  * powerspec.x [options] sampling inputfile outputfile
  *
  * Sampling: -f {auto | low high rate}
- *   auto: Low-resolution sampling until the Nyquist frequency (auto is a key-
- *         word, use as "-f auto").
+ *   auto: Calculate power spectrum from 5 microHertz to Nyquist frequency
+ *         with four times oversampling (auto is a key word, use as "-f auto").
  *   low high rate: Values for sampling in microHz (e.g. "-f 1500 4000 0.1", to
  *                  sample from 1500 to 4000 microHz in steps of 0.1 microHz).
  *
@@ -75,13 +75,21 @@ int main(int argc, char *argv[])
     nyquist = 1.0 / (2.0 * arr_median(dt, N-1)) * 1e6; // microHz !
     free(dt);
 
-    // Display Nyquist?
-    if ( quiet == 0 )
+    // Calculate suggested sampling (4 times oversampling)
+    double minsamp;
+    minsamp = 1.0e6 / (4 * (time[N-1] - time[0])); // microHz !
+    
+    // Display info?
+    if ( quiet == 0 ){
         printf(" -- INFO: Nyquist frequency = %.2lf microHz\n", nyquist);
+        printf(" -- INFO: Suggested minimum sampling = %.2lf microHz\n", minsamp);
+    }
 
     // Apply automatic sampling?
     if ( autosamp != 0 ) {
+        low = 5.0;
         high = nyquist;
+        rate = minsamp;
     }
 
     

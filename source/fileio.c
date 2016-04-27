@@ -47,10 +47,6 @@ int cmdarg(int argc, char *argv[], char inname[], char outname[], int *quiet,\
             if ( strcmp(argv[i], "auto") == 0) {
                 samp = 1;
                 *autosamp = 1;
-
-                // Apply default values for low and rate (high is Nyquist)
-                *low = 10.0;
-                *rate = 1.0;
             }
             // If manual, check that enough arguments is left
             else if ( i + 4 <= argc - 1) {
@@ -62,6 +58,9 @@ int cmdarg(int argc, char *argv[], char inname[], char outname[], int *quiet,\
                 *high = atof(argv[i]);
                 i++;
                 *rate = atof(argv[i]);
+            }
+            else {
+                break;
             }
         }
         // Non-optional arguments (filenames)
@@ -75,9 +74,9 @@ int cmdarg(int argc, char *argv[], char inname[], char outname[], int *quiet,\
         }
     }
 
-    // AT THE MOMENT EXIT IF NO SAMPLING IS PROVIDED!
+    // Exit if no (or wrong) sampling provided
     if ( samp == 0 ) {
-        fprintf(stderr, "No sampling provided! Unsupported option!\n");
+        fprintf(stderr, "No or wrong sampling provided! Quitting!\n");
         exit(1);
     }
 
