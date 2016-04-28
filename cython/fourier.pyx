@@ -33,37 +33,6 @@ cdef extern from "tsfourier.h" nogil:
 
 
 ###############################################################################
-# Auxiliary functions for Cython arrays (using typed memoryviews)
-###############################################################################
-cdef void arr_sca(double[::1] mvi, double a, double[::1] mvo,
-                 int N) nogil:
-    """
-    Multiply array by scalar.
-    NOTE: Cannot interact with Python objets.
-    """
-    cdef:
-        int i
-
-    for i in range(N):
-        mvo[i] = a * mvi[i]
-
-
-cdef double[::1] arr_sca_copy(double[::1] mvi, double a):
-    """
-    Multiply array by scalar -- NOT IN-PLACE.
-    NOTE: Can interact with Python objects.
-    """
-    cdef:
-        double[::1] mvo = np.zeros(mvi.shape[0])
-        int i, N
-
-    N = mvi.shape[0]
-    for i in range(N):
-        mvo[i] = a * mvi[i]
-    return mvo
-
-
-###############################################################################
 # Primary auxiliary function
 ###############################################################################
 def _powerspec(double[::1] time, double[::1] flux,
@@ -104,7 +73,7 @@ def _powerspec(double[::1] time, double[::1] flux,
 ###############################################################################
 # Main function
 ###############################################################################
-def calc(infile, unit, freq_start, freq_stop, freq_rate):
+def calc(infile, freq_start, freq_stop, freq_rate, unit='s', prep=True):
     """
     Calculate the power spectrum using a least mean square method. Returns
     arrays with test frequencies and corresponding power.
@@ -115,11 +84,13 @@ def calc(infile, unit, freq_start, freq_stop, freq_rate):
 
     Arguments:
     - `infile`: File to read in the format (t, data).
-    - `unit`: Unit of the time in data file (allowed: 's', 'day', 'ms').
     - `freq_start` : The lowest test frequency (in microHertz).
     - `freq_stop`: The highest test frequency (in microHertz).
     - `freq_rate`: The sampling rate (spacing between frequencies).
+    - `unit`: Unit of the time in data (allowed: 's' [default], 'day', 'ms').
+    - `prep`: Subtract mean of data (default: True).
     """
+    
     # Make Cython-typing
     cdef:
         double[::1] time, flux, freq, powers
@@ -136,11 +107,16 @@ def calc(infile, unit, freq_start, freq_stop, freq_rate):
     # Load data into C-style memory block
     t, f = np.ascontiguousarray(np.loadtxt(infile, unpack=True))
 
-    # Convert to correct unit (seconds)
+    # Convert to correct unit (seconds) and store in memoryview.
+    unit = unit.lower()
     if (unit == 'day' or unit == 'days' or unit == 'd'):
-        print('Hej')
+        time = t * 86400.0
+    elif (unit == 'ms' or unit == 'megasecond' or unit == 'megaseconds'):
+        time = t * 1.0e6
+    else:
+        time = t
 
-    # Subtract mean from data? And store in memoryview.
+    # Subtract mean from data and store in memoryview.
     if prep:
         flux = f - np.mean(f)
     else:
