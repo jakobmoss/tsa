@@ -81,6 +81,7 @@ int main(int argc, char *argv[])
     
     // Display info?
     if ( quiet == 0 ){
+        printf(" -- INFO: Length of time series = %li\n", N);
         printf(" -- INFO: Nyquist frequency = %.2lf microHz\n", nyquist);
         printf(" -- INFO: Suggested minimum sampling = %.2lf microHz\n", minsamp);
     }
@@ -122,6 +123,7 @@ int main(int argc, char *argv[])
         }
         else
             printf(" -- INFO: Sampling (in microHz): %.2lf to %.2lf in steps of %.2lf\n", low, high, rate);
+        printf(" -- INFO: Number of sampling frequencies = %li\n", M);
     }
     fourier(time, flux, freq, N, M, power);
 
