@@ -18,21 +18,29 @@ import fourier
 
 
 ###############################################################################
-# Script
+# Set-up
 ###############################################################################
+# Flags
+compare = False
+
 # Initial setup
-infile = 'ts_7days.txt'
 datdir = '../testdata/'
 outdir = '../output/'
-compare = False
+
+# Settings
+infile = 'ts_7days.txt'
+unit = 's'
 
 # Sampling of power spectrum (in microHertz)
 low = 1900.0
 high = 4100.0
 rate = 0.1
 
+###############################################################################
+# Script
+###############################################################################
 # Run power spectrum
-freq, powers = fourier.calc(datdir + infile, low, high, rate)
+freq, powers = fourier.calc(datdir + infile, unit, low, high, rate)
 
 # Compare to the true oscillations?
 if compare:

@@ -104,7 +104,7 @@ def _powerspec(double[::1] time, double[::1] flux,
 ###############################################################################
 # Main function
 ###############################################################################
-def calc(infile, freq_start, freq_stop, freq_rate):
+def calc(infile, unit, freq_start, freq_stop, freq_rate):
     """
     Calculate the power spectrum using a least mean square method. Returns
     arrays with test frequencies and corresponding power.
@@ -114,7 +114,8 @@ def calc(infile, freq_start, freq_stop, freq_rate):
     frequencies, powers = calc( ... )
 
     Arguments:
-    - `infile`: File to read in the format (t [seconds] , data).
+    - `infile`: File to read in the format (t, data).
+    - `unit`: Unit of the time in data file (allowed: 's', 'day', 'ms').
     - `freq_start` : The lowest test frequency (in microHertz).
     - `freq_stop`: The highest test frequency (in microHertz).
     - `freq_rate`: The sampling rate (spacing between frequencies).
@@ -133,8 +134,18 @@ def calc(infile, freq_start, freq_stop, freq_rate):
     rate = freq_rate
 
     # Load data into C-style memory block
-    time, flux = np.ascontiguousarray(np.loadtxt(infile, unpack=True))
+    t, f = np.ascontiguousarray(np.loadtxt(infile, unpack=True))
 
+    # Convert to correct unit (seconds)
+    if (unit == 'day' or unit == 'days' or unit == 'd'):
+        print('Hej')
+
+    # Subtract mean from data? And store in memoryview.
+    if prep:
+        flux = f - np.mean(f)
+    else:
+        flux = f
+        
     # Call the Cython-wrapper to fast calculation of the power spectrum
     freq, powers = _powerspec(time, flux, low, high, rate)
 
