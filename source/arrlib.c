@@ -3,6 +3,8 @@
 #include <math.h>
 #include <string.h>
 
+void quicksort(double x[], size_t first, size_t last);
+
 
 /* ~~~~~ Initialisations ~~~~~ */
 
@@ -49,26 +51,17 @@ double arr_mean(double x[], size_t N)
     return mean;
 }
 
-// Median of all elements in array
+// Median of array x
 double arr_median(double x[], size_t N)
 {
-    double median, temp;
+    double median;
 
     // Copy of array to preserve original
     double* y = malloc(N * sizeof(double));
     memcpy(y, x, N * sizeof(double));
 
-    // Sort array in ascending order
-    for (size_t i = 0; i < N-1; ++i) {
-        for (size_t j = i+1; j < N; ++j) {
-            // Swap elements
-            if ( y[j] < y[i] ) {
-                temp = y[i];
-                y[i] = y[j];
-                y[j] = temp;
-            }
-        }
-    }
+    // Sort array in ascending order using quicksort
+    quicksort(y, 0, N-1);
 
     // Median depends on even/uneven number of elements
     //  - Even: Mean of the two elements in the middle
@@ -84,7 +77,6 @@ double arr_median(double x[], size_t N)
     free(y);
     return median;
 }
-
 
 
 /* ~~~~~ Array operations on single array ~~~~~ */
@@ -121,3 +113,36 @@ size_t arr_util_getstep(double a, double b, double rate)
     } while (val < b);
     return steps-1;
 }
+
+// FOR MEDIAN: Sort array using (recursive) 'quicksort' algorithm
+void quicksort(double x[], size_t first, size_t last)
+{
+    double temp;
+    size_t pivot, i, j;
+    
+    if ( first < last ){
+        pivot = first;
+        i = first;
+        j = last;
+
+        while( i < j ){
+            while( x[i] <= x[pivot] && i < last )
+                i++;
+            while( x[j] > x[pivot] )
+                j--;
+            if( i < j ){
+                temp = x[i];
+                x[i] = x[j];
+                x[j] = temp;
+            }
+        }
+
+        temp = x[pivot];
+        x[pivot] = x[j];
+        x[j] = temp;
+        quicksort(x, first, j-1);
+        quicksort(x, j+1, last);
+    }
+}
+
+

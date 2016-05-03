@@ -16,4 +16,3 @@ void arr_diff(double x[], double y[], size_t N);
 
 
 size_t arr_util_getstep(double a, double b, double rate);
-
