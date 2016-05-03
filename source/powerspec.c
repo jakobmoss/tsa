@@ -51,14 +51,15 @@ int main(int argc, char *argv[])
     int unit = 1;
     int prep = 1;
     int autosamp = 0;
+    int fast = 0;
 
     
     /* Process command line arguments and return line count of the input file */
     N = cmdarg(argc, argv, inname, outname, &quiet, &unit, &prep, &low, &high,\
-               &rate, &autosamp);
+               &rate, &autosamp, &fast);
     
     // Pretty print
-    if ( quiet == 0 )
+    if ( quiet == 0 || fast == 1)
         printf("\nCalculating the power spectrum of \"%s\" ...\n", inname);
 
 
@@ -68,31 +69,33 @@ int main(int argc, char *argv[])
     double* flux = malloc(N * sizeof(double));
     readcols(inname, time, flux, N, unit, quiet);
 
-    // Calculate Nyquist frequency
-    double* dt = malloc(N-1 * sizeof(double));
-    double nyquist;
-    arr_diff(time, dt, N);
-    nyquist = 1.0 / (2.0 * arr_median(dt, N-1)) * 1e6; // microHz !
-    free(dt);
+    // Do if fast-mode is not activated
+    if ( fast == 0 ) {
+        // Calculate Nyquist frequency
+        double* dt = malloc(N-1 * sizeof(double));
+        double nyquist;
+        arr_diff(time, dt, N);
+        nyquist = 1.0 / (2.0 * arr_median(dt, N-1)) * 1e6; // microHz !
+        free(dt);
 
-    // Calculate suggested sampling (4 times oversampling)
-    double minsamp;
-    minsamp = 1.0e6 / (4 * (time[N-1] - time[0])); // microHz !
+        // Calculate suggested sampling (4 times oversampling)
+        double minsamp;
+        minsamp = 1.0e6 / (4 * (time[N-1] - time[0])); // microHz !
     
-    // Display info?
-    if ( quiet == 0 ){
-        printf(" -- INFO: Length of time series = %li\n", N);
-        printf(" -- INFO: Nyquist frequency = %.2lf microHz\n", nyquist);
-        printf(" -- INFO: Suggested minimum sampling = %.2lf microHz\n", minsamp);
-    }
+        // Display info?
+        if ( quiet == 0 ){
+            printf(" -- INFO: Length of time series = %li\n", N);
+            printf(" -- INFO: Nyquist frequency = %.2lf microHz\n", nyquist);
+            printf(" -- INFO: Suggested minimum sampling = %.2lf microHz\n", minsamp);
+        }
 
-    // Apply automatic sampling?
-    if ( autosamp != 0 ) {
-        low = 5.0;
-        high = nyquist;
-        rate = minsamp;
+        // Apply automatic sampling?
+        if ( autosamp != 0 ) {
+            low = 5.0;
+            high = nyquist;
+            rate = minsamp;
+        }
     }
-
     
     /* Prepare for power spectrum */
     // Get length of sampling vector
@@ -139,6 +142,6 @@ int main(int argc, char *argv[])
     free(power);
         
     /* Done! */
-    if ( quiet == 0 ) printf("Done!\n\n");
+    if ( quiet == 0 || fast ==1 ) printf("Done!\n\n");
     return 0; 
 }

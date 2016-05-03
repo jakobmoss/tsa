@@ -6,14 +6,15 @@
 /* Check command-line argument and count lines in given file */
 int cmdarg(int argc, char *argv[], char inname[], char outname[], int *quiet,\
            int *unit, int *prep, double *low, double *high, double *rate,\
-           int *autosamp)
+           int *autosamp, int *fast)
 {
-    // Init
-    int samp = 0;
+    // Internal
+    int isamp = 0;
+    int ifast = 0;
     
     // Quit if wrong number of arguments is given!
     if (argc < 5) {
-        fprintf(stderr, "usage: %s  [-q] [-t{sec|day|ms}] [-noprep] -f {auto | low high rate} input_file  output_file\n", argv[0]);
+        fprintf(stderr, "usage: %s  [-q] [-t{sec|day|ms}] [-noprep] [-fast] -f {auto | low high rate} input_file  output_file\n", argv[0]);
         exit(1);
     }
 
@@ -38,6 +39,11 @@ int cmdarg(int argc, char *argv[], char inname[], char outname[], int *quiet,\
         else if ( strcmp(argv[i], "-noprep" ) == 0 ) {
             *prep = 0;
         }
+        // Fast-mode
+        else if ( strcmp(argv[i], "-fast" ) == 0 ) {
+            *fast = 1;
+            ifast = 1;
+        }
         // Sampling
         else if ( strcmp(argv[i], "-f" ) == 0 ) {
             // Get to first option
@@ -45,12 +51,12 @@ int cmdarg(int argc, char *argv[], char inname[], char outname[], int *quiet,\
             
             // Check for automatic sampling
             if ( strcmp(argv[i], "auto") == 0) {
-                samp = 1;
+                isamp = 1;
                 *autosamp = 1;
             }
             // If manual, check that enough arguments is left
             else if ( i + 4 <= argc - 1) {
-                samp = 2;
+                isamp = 2;
                 
                 // Read the values and increment i
                 *low = atof(argv[i]);
@@ -75,16 +81,27 @@ int cmdarg(int argc, char *argv[], char inname[], char outname[], int *quiet,\
     }
 
     // Exit if no (or wrong) sampling provided
-    if ( samp == 0 ) {
+    if ( isamp == 0 ) {
         fprintf(stderr, "No or wrong sampling provided! Quitting!\n");
         exit(1);
     }
+
+    // Override options if fast-mode
+    if ( ifast == 1 ) {
+        printf(" * Fast-mode activated. Going (almost) quiet * \n");
+        *quiet = 1;
+        if ( isamp == 1 ) {
+            fprintf(stderr, "Cannot autosample in fast mode! Quitting!\n");
+            exit(1);
+        }
+    }
+    
 
     // Read file and quit if it cannot be opened
     size_t ch, number_of_lines = 0;
     FILE* tmpfile = fopen(inname, "r");
     if ( tmpfile == 0 ) {
-        fprintf(stderr,"Could not open file:  %s \n", inname);
+        fprintf(stderr, "Could not open file:  %s \n", inname);
         exit(1);
     }
     
