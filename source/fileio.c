@@ -86,7 +86,7 @@ int cmdarg(int argc, char *argv[], char inname[], char outname[], int *quiet,\
         exit(1);
     }
 
-    // Override options if fast-mode
+    // Override options if fast-mode is activated
     if ( ifast == 1 ) {
         printf(" * Fast-mode activated. Going (almost) quiet * \n");
         *quiet = 1;

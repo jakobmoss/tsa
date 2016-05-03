@@ -14,6 +14,9 @@
  *  -t{sec|day|ms}: Unit of input file (seconds [default], days, megaseconds).
  *  -noprep: Do not subtract the mean of time series (for artificial data where
  *           the mean is 0).
+ *  -fast: Fast-mode. Disable Nyquist calculation (and hence automatic
+ *         sampling) for lower runtime. Activates quiet-mode automatically. Use
+ *         for benchmarking the pure I/O + algorithm.
  *
  * Note:
  * Using multi-threading with OpenMP. Set number of threads used by the shell
