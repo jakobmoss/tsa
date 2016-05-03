@@ -13,7 +13,6 @@
 # General
 from __future__ import print_function, with_statement, division
 import numpy as np
-import matplotlib as mpl  # Pyplot is loaded after setup!
 
 # Cython module
 import fourier
@@ -22,7 +21,7 @@ import fourier
 ###############################################################################
 # Set-up
 ###############################################################################
-compare = True
+compare = False
 
 # Initial setup
 datdir = '../testdata/'
@@ -42,25 +41,28 @@ rate = 0.1
 ###############################################################################
 # Prepare for Plotting
 ###############################################################################
-def matplotlib_setup():
-    fig_width_pt = 328
-    inches_per_pt = 1.0 / 72.27
-    golden_mean = (np.sqrt(5.0) - 1) / 2.0
-    fig_width = fig_width_pt * inches_per_pt
-    fig_height = fig_width * golden_mean
-    fig_size = [fig_width, fig_height]
-    mpl.rc('text', usetex=True)
-    mpl.rc('figure', figsize=fig_size)
-    mpl.rc('font', size=8, family='serif')
-    mpl.rc('axes', labelsize=8)
-    mpl.rc('legend', fontsize=8)
-    mpl.rc('xtick', labelsize=8)
-    mpl.rc('ytick', labelsize=8)
-    mpl.rc('text.latex',
-           preamble=r'\usepackage[T1]{fontenc}\usepackage{libertine}\usepackage[libertine]{newtxmath}')
+if compare:
+    import matplotlib as mpl  # Pyplot is loaded after setup!
 
-matplotlib_setup()
-import matplotlib.pyplot as plt
+    def matplotlib_setup():
+        fig_width_pt = 328
+        inches_per_pt = 1.0 / 72.27
+        golden_mean = (np.sqrt(5.0) - 1) / 2.0
+        fig_width = fig_width_pt * inches_per_pt
+        fig_height = fig_width * golden_mean
+        fig_size = [fig_width, fig_height]
+        mpl.rc('text', usetex=True)
+        mpl.rc('figure', figsize=fig_size)
+        mpl.rc('font', size=8, family='serif')
+        mpl.rc('axes', labelsize=8)
+        mpl.rc('legend', fontsize=8)
+        mpl.rc('xtick', labelsize=8)
+        mpl.rc('ytick', labelsize=8)
+        mpl.rc('text.latex',
+               preamble=r'\usepackage[T1]{fontenc}\usepackage{libertine}\usepackage[libertine]{newtxmath}')
+
+    matplotlib_setup()
+    import matplotlib.pyplot as plt
 
 ###############################################################################
 # Script
