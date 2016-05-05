@@ -89,7 +89,8 @@ int main(int argc, char *argv[])
         if ( quiet == 0 ){
             printf(" -- INFO: Length of time series = %li\n", N);
             printf(" -- INFO: Nyquist frequency = %.2lf microHz\n", nyquist);
-            printf(" -- INFO: Suggested minimum sampling = %.2lf microHz\n", minsamp);
+            printf(" -- INFO: Suggested minimum sampling = %.2lf microHz\n",\
+                   minsamp);
         }
 
         // Apply automatic sampling?
@@ -117,7 +118,8 @@ int main(int argc, char *argv[])
         arr_sca_add(flux, -arr_mean(flux, N), N);
     }
     else {
-        if ( quiet == 0 ) printf(" - Time series used *without* mean subtraction!\n");
+        if ( quiet == 0 )
+            printf(" - Time series used *without* mean subtraction!\n");
     }
     
     /* Calculate power spectrum */
@@ -125,10 +127,13 @@ int main(int argc, char *argv[])
         printf(" - Calculating fourier transform\n");
         if ( autosamp != 0 ) {
             printf(" -- NB: Using automatic sampling!\n");
-            printf(" -- INFO: Auto-sampling (in microHz): %.2lf to %.2lf in steps of %.2lf\n", low, high, rate);
+            printf(" -- INFO: Auto-sampling (in microHz): %.2lf to %.2lf in "\
+                   "steps of %.2lf\n", low, high, rate);
         }
-        else
-            printf(" -- INFO: Sampling (in microHz): %.2lf to %.2lf in steps of %.2lf\n", low, high, rate);
+        else {
+            printf(" -- INFO: Sampling (in microHz): %.2lf to %.2lf in steps "\
+                   "of %.2lf\n", low, high, rate);
+        }
         printf(" -- INFO: Number of sampling frequencies = %li\n", M);
     }
     fourier(time, flux, freq, N, M, power);

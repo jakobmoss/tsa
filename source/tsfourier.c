@@ -4,10 +4,11 @@
 
 #include <omp.h>
 
-#define PI2micro 6.2831853071795864769252867665590057683943387987502116419e-6
+#define PI2micro 6.28318530717958647692528676655900576839433879875e-6
 
 // Auxialiary: Calculate alpha and beta coefficients
-void alpbet(double time[], double flux[], double ny, size_t N, double *alpha, double *beta)
+void alpbet(double time[], double flux[], double ny, size_t N, double *alpha,\
+            double *beta)
 {
     // Auxiliary
     double sn, cn, D;

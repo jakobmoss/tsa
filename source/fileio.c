@@ -14,7 +14,8 @@ int cmdarg(int argc, char *argv[], char inname[], char outname[], int *quiet,\
     
     // Quit if wrong number of arguments is given!
     if (argc < 5) {
-        fprintf(stderr, "usage: %s  [-q] [-t{sec|day|ms}] [-noprep] [-fast] -f {auto | low high rate} input_file  output_file\n", argv[0]);
+        fprintf(stderr, "usage: %s  [-q] [-t{sec|day|ms}] [-noprep] [-fast] "\
+                "-f {auto | low high rate} input_file  output_file\n", argv[0]);
         exit(1);
     }
 
