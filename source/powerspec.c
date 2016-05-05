@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
         if ( quiet == 0 ){
             printf(" -- INFO: Length of time series = %li\n", N);
             printf(" -- INFO: Nyquist frequency = %.2lf microHz\n", nyquist);
-            printf(" -- INFO: Suggested minimum sampling = %.2lf microHz\n",\
+            printf(" -- INFO: Suggested minimum sampling = %.3lf microHz\n",\
                    minsamp);
         }
 
@@ -130,11 +130,11 @@ int main(int argc, char *argv[])
         if ( autosamp != 0 ) {
             printf(" -- NB: Using automatic sampling!\n");
             printf(" -- INFO: Auto-sampling (in microHz): %.2lf to %.2lf in "\
-                   "steps of %.2lf\n", low, high, rate);
+                   "steps of %.4lf\n", low, high, rate);
         }
         else {
             printf(" -- INFO: Sampling (in microHz): %.2lf to %.2lf in steps "\
-                   "of %.2lf\n", low, high, rate);
+                   "of %.4lf\n", low, high, rate);
         }
         printf(" -- INFO: Number of sampling frequencies = %li\n", M);
     }
