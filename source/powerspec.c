@@ -100,6 +100,7 @@ int main(int argc, char *argv[])
             rate = minsamp;
         }
     }
+
     
     /* Prepare for power spectrum */
     // Get length of sampling vector
@@ -121,6 +122,7 @@ int main(int argc, char *argv[])
         if ( quiet == 0 )
             printf(" - Time series used *without* mean subtraction!\n");
     }
+
     
     /* Calculate power spectrum */
     if ( quiet == 0 ){
@@ -143,12 +145,14 @@ int main(int argc, char *argv[])
     if ( quiet == 0 ) printf(" - Saving to file \"%s\"\n", outname);
     writecols(outname, freq, power, M);
 
+    
     /* Free data */
     free(time);
     free(flux);
     free(freq);
     free(power);
-        
+
+
     /* Done! */
     if ( quiet == 0 || fast ==1 ) printf("Done!\n\n");
     return 0; 

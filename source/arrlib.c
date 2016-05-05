@@ -1,28 +1,17 @@
-#include <stdio.h>
+/*  ~~~ Time Series Analysis -- Auxiliary ~~~
+ *
+ * Routines for array-operations
+ * 
+ * Author: Jakob Rørsted Mosumgaard
+ */
+
 #include <stdlib.h>
-#include <math.h>
 #include <string.h>
 
 void quicksort(double x[], size_t first, size_t last);
 
 
 /* ~~~~~ Initialisations ~~~~~ */
-
-// Fill an array with numbers: 0, ..., N-1 ; (C-style range)
-void arr_init_crange(double x[], size_t N)
-{
-    for (int i = 0; i < N; ++i) {
-        x[i] = i;
-    }
-}
-
-// Fill an array with numbers: 1, ..., N ; (FORTRAN-style range)
-void arr_init_frange(double x[], size_t N)
-{
-    for (int i = 0; i < N; ++i) {
-        x[i] = i+1;
-    }
-}
 
 // Fill array x with N points of increment rate starting from a
 //  - NOTE: Uses utility function to calculate N
@@ -32,7 +21,6 @@ void arr_init_linspace(double x[], double a, double rate, size_t N)
         x[i] = a + i*rate;
     }
 }
-
 
 
 /* ~~~~~ Return value for single array ~~~~~ */

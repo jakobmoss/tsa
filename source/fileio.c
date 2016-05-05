@@ -1,3 +1,10 @@
+/*  ~~~ Time Series Analysis -- Auxiliary ~~~
+ *
+ * Routines for input/output
+ * 
+ * Author: Jakob Rørsted Mosumgaard
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
