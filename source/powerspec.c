@@ -15,12 +15,13 @@
  *              provided input times and weights, as well as the provided
  *              frequency sampling.
  *              NOTE: Remember to specify the frequency f0! Unit is microHertz.
- *              NOTE: This switch will *not* produce a power spectrum of the
+ *              NOTE 2: This switch will *not* produce a power spectrum of the
  *                    input data.
- *              NOTE 2: The -noprep switch is meaningless with this option,
+ *              NOTE 3: The -noprep switch is meaningless with this option,
  *                      since the input data is not used (only the times).
- *
- *  
+ *              NOTE 4: Will activate pseudo fast-mode and hence disable
+ *                      automatic sampling and Nyquist calculation.
+
  * Options:
  *  -w: Calculate weighted power spectrum -- requires an extra column in the
  *      input file containing weight per data point.
