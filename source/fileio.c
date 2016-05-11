@@ -132,9 +132,9 @@ int cmdarg(int argc, char *argv[], char inname[], char outname[], int *quiet,\
 }
 
 
-/* Read file with two columns of data */
-void readcols(char *fname, double x[], double y[], size_t N, int unit,\
-              int quiet)
+/* Read file with two or three columns of data */
+void readcols(char *fname, double x[], double y[], double z[], size_t N,\
+              int unit, int quiet)
 {
     // Read the file
     FILE* infile = fopen(fname, "r");

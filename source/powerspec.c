@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
     
     // Pretty print
     if ( quiet == 0 || fast == 1){
-        if ( weight != 0 )
+        if ( useweight != 0 )
             printf("\nCalculating the weighted power spectrum of \"%s\" ...\n",\
                    inname);
         else
@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
     double* time = malloc(N * sizeof(double));
     double* flux = malloc(N * sizeof(double));
     double* weights = malloc(N * sizeof(double));
-    readcols(inname, time, flux, N, unit, quiet);
+    readcols(inname, time, flux, weights, N, unit, quiet);
 
     // Do if fast-mode is not activated
     if ( fast == 0 ) {
