@@ -10,7 +10,7 @@
  *                  sample from 1500 to 4000 microHz in steps of 0.1 microHz).
  *
  * Special options:
- *  -window f0: Activate windowfunction-mode. Calculate the (power spectrum of)
+ *  -window f0: Activate window-function-mode. Calculate the (power spectrum of)
  *              the window function at frequency f0 (in microHertz). Uses the
  *              provided input times and weights, as well as the provided
  *              frequency sampling.
@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
     // Sampling
     double low, high, rate;
 
-    // Frequency of windowfunction
+    // Frequency of window function
     double winfreq = 0;
 
     // Options
@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
         else if ( windowmode == 0 )
             printf("\nCalculating the power spectrum of \"%s\" ...\n", inname);
         else
-            printf("\nCalculating the windowfunction at %.1lf microHz of"\
+            printf("\nCalculating the window function at %.1lf microHz of"\
                    " \"%s\" ...\n", winfreq, inname);
     }
     
@@ -101,8 +101,8 @@ int main(int argc, char *argv[])
     double* weight = malloc(N * sizeof(double));
     readcols(inname, time, flux, weight, N, useweight, unit, quiet);
     
-    // Do if fast-mode is not activated
-    if ( fast == 0 ) {
+    // Do if fast-mode and window-mode is not activated
+    if ( fast == 0 && windowmode == 0 ) {
         // Calculate Nyquist frequency
         double* dt = malloc(N-1 * sizeof(double));
         double nyquist;
@@ -142,39 +142,47 @@ int main(int argc, char *argv[])
     // Initialise arrays for data storage
     double* power = malloc(M * sizeof(double));
 
-    // Subtract the mean to avoid "zero-frequency" problems
-    if ( prep != 0 ) {
-        if ( quiet == 0 ) printf(" - Subtracting the mean from time series\n");
-        arr_sca_add(flux, -arr_mean(flux, N), N);
-    }
-    else {
-        if ( quiet == 0 )
-            printf(" - Time series used *without* mean subtraction!\n");
-    }
 
-    
-    /* Calculate power spectrum */
-    if ( quiet == 0 ){
-        printf(" - Calculating fourier transform\n");
-        if ( autosamp != 0 ) {
-            printf(" -- NB: Using automatic sampling!\n");
-            printf(" -- INFO: Auto-sampling (in microHz): %.2lf to %.2lf in "\
-                   "steps of %.4lf\n", low, high, rate);
+    /* Calculate power spectrum OR window function */
+    if ( windowmode == 0) {
+        // Subtract the mean to avoid "zero-frequency" problems
+        if ( prep != 0 ) {
+            if ( quiet == 0 ){
+                printf(" - Subtracting the mean from time series\n");
+            }
+            arr_sca_add(flux, -arr_mean(flux, N), N);
         }
         else {
-            printf(" -- INFO: Sampling (in microHz): %.2lf to %.2lf in steps "\
-                   "of %.4lf\n", low, high, rate);
+            if ( quiet == 0 )
+                printf(" - Time series used *without* mean subtraction!\n");
         }
-        printf(" -- INFO: Number of sampling frequencies = %li\n", M);
+    
+        // Calculate power spectrum
+        if ( quiet == 0 ){
+            printf(" - Calculating fourier transform\n");
+            if ( autosamp != 0 ) {
+                printf(" -- NB: Using automatic sampling!\n");
+                printf(" -- INFO: Auto-sampling (in microHz): %.2lf to %.2lf"\
+                       " in steps of %.4lf\n", low, high, rate);
+            }
+            else {
+                printf(" -- INFO: Sampling (in microHz): %.2lf to %.2lf in"\
+                       " steps of %.4lf\n", low, high, rate);
+            }
+            printf(" -- INFO: Number of sampling frequencies = %li\n", M);
+        }
+
+        // Call function with or without weights
+        if ( useweight == 0 )
+            fourier(time, flux, freq, N, M, power);
+        else
+            fourierW(time, flux, weight, freq, N, M, power);
+    }
+    else {
+        if ( quiet == 0 ) printf(" - Calculating window function\n");
     }
 
-    // Call function with or without weights
-    if ( useweight == 0 )
-        fourier(time, flux, freq, N, M, power);
-    else
-        fourierW(time, flux, weight, freq, N, M, power);
-
-    
+        
     /* Write data to file */
     if ( quiet == 0 ) printf(" - Saving to file \"%s\"\n", outname);
     writecols(outname, freq, power, M);
