@@ -9,6 +9,18 @@
  *   low high rate: Values for sampling in microHz (e.g. "-f 1500 4000 0.1", to
  *                  sample from 1500 to 4000 microHz in steps of 0.1 microHz).
  *
+ * Special options:
+ *  -window f0: Activate windowfunction-mode. Calculate the (power spectrum of)
+ *              the window function at frequency f0 (in microHertz). Uses the
+ *              provided input times and weights, as well as the provided
+ *              frequency sampling.
+ *              NOTE: Remember to specify the frequency f0! Unit is microHertz.
+ *              NOTE: This switch will *not* produce a power spectrum of the
+ *                    input data.
+ *              NOTE 2: The -noprep switch is meaningless with this option,
+ *                      since the input data is not used (only the times).
+ *
+ *  
  * Options:
  *  -w: Calculate weighted power spectrum -- requires an extra column in the
  *      input file containing weight per data point.
@@ -51,6 +63,9 @@ int main(int argc, char *argv[])
     // Sampling
     double low, high, rate;
 
+    // Frequency of windowfunction
+    double winfreq = 0;
+
     // Options
     int quiet = 0;
     int unit = 1;
@@ -58,19 +73,23 @@ int main(int argc, char *argv[])
     int autosamp = 0;
     int fast = 0;
     int useweight = 0;
+    int windowmode = 0;
 
     
     /* Process command line arguments and return line count of the input file */
     N = cmdarg(argc, argv, inname, outname, &quiet, &unit, &prep, &low, &high,\
-               &rate, &autosamp, &fast, &useweight);
+               &rate, &autosamp, &fast, &useweight, &windowmode, &winfreq);
     
     // Pretty print
     if ( quiet == 0 || fast == 1){
-        if ( useweight != 0 )
+        if ( windowmode == 0 && useweight != 0 )
             printf("\nCalculating the weighted power spectrum of \"%s\" ...\n",\
                    inname);
-        else
+        else if ( windowmode == 0 )
             printf("\nCalculating the power spectrum of \"%s\" ...\n", inname);
+        else
+            printf("\nCalculating the windowfunction at %.1lf microHz of"\
+                   " \"%s\" ...\n", winfreq, inname);
     }
     
 

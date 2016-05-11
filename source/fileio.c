@@ -13,7 +13,8 @@
 /* Check command-line argument and count lines in given file */
 int cmdarg(int argc, char *argv[], char inname[], char outname[], int *quiet,\
            int *unit, int *prep, double *low, double *high, double *rate,\
-           int *autosamp, int *fast, int *useweight)
+           int *autosamp, int *fast, int *useweight, int *windowmode,\
+           double *winfreq)
 {
     // Internal
     int isamp = 0;
@@ -21,8 +22,9 @@ int cmdarg(int argc, char *argv[], char inname[], char outname[], int *quiet,\
     
     // Quit if wrong number of arguments is given!
     if (argc < 5) {
-        fprintf(stderr, "usage: %s  [-q] [-t{sec|day|ms}] [-noprep] [-fast] "\
-                "-f {auto | low high rate} input_file  output_file\n", argv[0]);
+        fprintf(stderr, "usage: %s  [-window] [-w] [-q] [-t{sec|day|ms}]"\
+                " [-noprep] [-fast] -f {auto | low high rate} input_file"\
+                " output_file\n", argv[0]);
         exit(1);
     }
 
@@ -56,9 +58,17 @@ int cmdarg(int argc, char *argv[], char inname[], char outname[], int *quiet,\
         else if ( strcmp(argv[i], "-w" ) == 0 ) {
             *useweight = 1;
         }
+        // Windowfunction-mode
+        else if ( strcmp(argv[i], "-window" ) == 0 ) {
+            *windowmode = 1;
+
+            // Read frequency
+            i++;
+            *winfreq = atof(argv[i]);
+        }
         // Sampling
         else if ( strcmp(argv[i], "-f" ) == 0 ) {
-            // Get to first option
+            // Go to first option
             i++;
             
             // Check for automatic sampling
