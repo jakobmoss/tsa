@@ -47,6 +47,7 @@
 #include "fileio.h"
 #include "arrlib.h"
 #include "tsfourier.h"
+#include "window.h"
 
 
 int main(int argc, char *argv[])
