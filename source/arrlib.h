@@ -5,6 +5,8 @@ void arr_init_frange(double x[], size_t N);
 void arr_init_linspace(double x[], double a, double rate, size_t N);
 
 
+double arr_sum(double x[], size_t N);
+
 double arr_mean(double x[], size_t N);
 
 double arr_median(double x[], size_t N);

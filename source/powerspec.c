@@ -147,7 +147,12 @@ int main(int argc, char *argv[])
         }
         printf(" -- INFO: Number of sampling frequencies = %li\n", M);
     }
-    fourier(time, flux, freq, N, M, power);
+
+    // Call function with or without weights
+    if ( useweight == 0 )
+        fourier(time, flux, freq, N, M, power);
+    else
+        fourierW(time, flux, weight, freq, N, M, power);
 
     
     /* Write data to file */

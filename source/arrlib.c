@@ -25,6 +25,16 @@ void arr_init_linspace(double x[], double a, double rate, size_t N)
 
 /* ~~~~~ Return value for single array ~~~~~ */
 
+// Sum the elements of an array
+double arr_sum(double x[], size_t N)
+{
+    double sum = 0.0;
+    for (int i = 0; i < N; ++i) {
+        sum += x[i];
+    }
+    return sum;
+}
+
 // Average (mean) of elements in array
 double arr_mean(double x[], size_t N)
 {
