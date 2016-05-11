@@ -134,13 +134,19 @@ int cmdarg(int argc, char *argv[], char inname[], char outname[], int *quiet,\
 
 /* Read file with two or three columns of data */
 void readcols(char *fname, double x[], double y[], double z[], size_t N,\
-              int unit, int quiet)
+              int three, int unit, int quiet)
 {
-    // Read the file
+    // Read the file depending on the number of columns
     FILE* infile = fopen(fname, "r");
-    for (size_t i = 0; i < N+1; ++i) {
-        if ( fscanf(infile ,"%lf%lf", &x[i], &y[i] ) != 2) {
-            break;
+    if ( three == 0) {
+        for (size_t i = 0; i < N+1; ++i) {
+            if ( fscanf(infile ,"%lf%lf", &x[i], &y[i] ) != 2) break;
+        }
+    }
+    else {
+        if ( quiet == 0 ) printf(" -- INFO: Using weights\n");
+        for (size_t i = 0; i < N+1; ++i) {
+            if ( fscanf(infile ,"%lf%lf%lf", &x[i], &y[i], &z[i] ) != 3) break;
         }
     }
     fclose(infile);

@@ -74,13 +74,13 @@ int main(int argc, char *argv[])
     }
     
 
-    /* Read data from the file */
+    /* Read data (and weights) from the input file */
     if ( quiet == 0 ) printf(" - Reading input\n");
     double* time = malloc(N * sizeof(double));
     double* flux = malloc(N * sizeof(double));
-    double* weights = malloc(N * sizeof(double));
-    readcols(inname, time, flux, weights, N, unit, quiet);
-
+    double* weight = malloc(N * sizeof(double));
+    readcols(inname, time, flux, weight, N, useweight, unit, quiet);
+    
     // Do if fast-mode is not activated
     if ( fast == 0 ) {
         // Calculate Nyquist frequency
@@ -158,7 +158,7 @@ int main(int argc, char *argv[])
     /* Free data */
     free(time);
     free(flux);
-    free(weights);
+    free(weight);
     free(freq);
     free(power);
 
