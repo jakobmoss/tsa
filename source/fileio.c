@@ -13,7 +13,7 @@
 /* Check command-line argument and count lines in given file */
 int cmdarg(int argc, char *argv[], char inname[], char outname[], int *quiet,\
            int *unit, int *prep, double *low, double *high, double *rate,\
-           int *autosamp, int *fast)
+           int *autosamp, int *fast, int *useweight)
 {
     // Internal
     int isamp = 0;
@@ -51,6 +51,10 @@ int cmdarg(int argc, char *argv[], char inname[], char outname[], int *quiet,\
         else if ( strcmp(argv[i], "-fast" ) == 0 ) {
             *fast = 1;
             ifast = 1;
+        }
+        // Weights
+        else if ( strcmp(argv[i], "-w" ) == 0 ) {
+            *useweight = 1;
         }
         // Sampling
         else if ( strcmp(argv[i], "-f" ) == 0 ) {

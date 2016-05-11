@@ -10,6 +10,8 @@
  *                  sample from 1500 to 4000 microHz in steps of 0.1 microHz).
  *
  * Options:
+ *  -w: Calculate weighted power spectrum -- requires an extra column in the
+ *      input file containing weight per data point.
  *  -q: Quiet-mode. No output to console.
  *  -t{sec|day|ms}: Unit of input file (seconds [default], days, megaseconds).
  *  -noprep: Do not subtract the mean of time series (for artificial data where
@@ -55,21 +57,28 @@ int main(int argc, char *argv[])
     int prep = 1;
     int autosamp = 0;
     int fast = 0;
+    int useweight = 0;
 
     
     /* Process command line arguments and return line count of the input file */
     N = cmdarg(argc, argv, inname, outname, &quiet, &unit, &prep, &low, &high,\
-               &rate, &autosamp, &fast);
+               &rate, &autosamp, &fast, &useweight);
     
     // Pretty print
-    if ( quiet == 0 || fast == 1)
-        printf("\nCalculating the power spectrum of \"%s\" ...\n", inname);
-
+    if ( quiet == 0 || fast == 1){
+        if ( weight != 0 )
+            printf("\nCalculating the weighted power spectrum of \"%s\" ...\n",\
+                   inname);
+        else
+            printf("\nCalculating the power spectrum of \"%s\" ...\n", inname);
+    }
+    
 
     /* Read data from the file */
     if ( quiet == 0 ) printf(" - Reading input\n");
     double* time = malloc(N * sizeof(double));
     double* flux = malloc(N * sizeof(double));
+    double* weights = malloc(N * sizeof(double));
     readcols(inname, time, flux, N, unit, quiet);
 
     // Do if fast-mode is not activated
@@ -149,6 +158,7 @@ int main(int argc, char *argv[])
     /* Free data */
     free(time);
     free(flux);
+    free(weights);
     free(freq);
     free(power);
 
