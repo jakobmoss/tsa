@@ -139,8 +139,8 @@ int main(int argc, char *argv[])
     double limit = 0;
     if ( windowmode != 0 ) {
         limit = low;
-        high = winfreq + limit;
         low = winfreq - limit;
+        high = winfreq + limit;
     }
     
     // Get length of sampling vector
@@ -199,10 +199,18 @@ int main(int argc, char *argv[])
         }
 
         // Calculate spectral window with or without weights
-        if ( useweight == 0 )
+        double winsum;
+        if ( useweight == 0 ){
             windowfunction(time, freq, N, M, winfreq, power);
-        else
+            winsum = windowsum(winfreq, limit, rate, time, NULL, N, 0);
+        }
+        else{
             windowfunctionW(time, freq, weight, N, M, winfreq, power);
+            winsum = windowsum(winfreq, limit, rate, time, weight, N, 1);
+        }
+
+        if ( quiet == 0 )
+            printf(" - Sum of spectral window = %.4lf\n", winsum);
 
         // Move frequencies to the origin
         arr_sca_add(freq, -winfreq, M);

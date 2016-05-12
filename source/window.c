@@ -230,3 +230,54 @@ void windowalpbetW(double time[], double weight[], double datasin[],\
     *alphacos = (scos * cc - ccos * sc)/D;
     *betacos  = (ccos * ss - scos * sc)/D;
 }
+
+
+
+/* Calculate the sum of the spectral window
+ *
+ * Arguments:
+ * - `f0`       : Desired frequency of the window function
+ * - `limit`    : Sampling range: f0 +/- limit
+ * - `rate`     : Frequency step of sampling
+ * - `time`     : Array of times (from the time series). In seconds!
+ * - `weight`   : Statistical weights per data point (pass NULL if no weights).
+ * - `N`        : Length of the time series
+ * - `useweight`: If != 0 weights will be used.
+ *
+ * Note on weights:
+ * If used without weights, call as:
+ *   >  windowsum(f0, limit, data, time, NULL, N, 0)
+ *   
+ */
+
+double windowsum(double f0, double limit, double rate, double time[],
+                 double weight[], size_t N, int useweight)
+{
+    // Init
+    double result = 0;
+
+    // Calculate length of sampling vector
+    double low = f0 - limit;
+    double high = f0 + limit;
+    size_t M = arr_util_getstep(low, high, rate);
+
+    // Initialise arrays and generate sampling frequencies
+    double* freq = malloc(M * sizeof(double));
+    double* window = malloc(M * sizeof(double));
+    arr_init_linspace(freq, low, rate, M);
+
+    // Calculate spectral window with or without weights
+    if ( useweight == 0 )
+        windowfunction(time, freq, N, M, f0, window);
+    else
+        windowfunctionW(time, freq, weight, N, M, f0, window);
+
+    // Calculate the sum
+    result = arr_sum(window, M);
+    
+    // Done
+    free(freq);
+    free(window);
+    return result;
+}
+
