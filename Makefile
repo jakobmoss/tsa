@@ -6,6 +6,7 @@
 
 # Settings
 EXEC = powerspec.x
+EXEC2 = fclean.x
 DAYS = 7
 
 
@@ -39,7 +40,7 @@ test: $(EXEC) data
 # Housekeeping
 .PHONY: clean
 clean:
-	$(RM) $(EXEC)
+	$(RM) $(EXEC) $(EXEC2)
 	$(RM) output/*.txt output/*.pdf
 	$(MAKE) -C source clean
 	$(MAKE) -C testdata clean
