@@ -181,7 +181,15 @@ int main(int argc, char *argv[])
     }
     else {
         if ( quiet == 0 ) printf(" - Calculating window function\n");
-        windowfunction(time, freq, N, M, winfreq, power);
+
+        // Calculate spectral window with or without weights
+        if ( useweight == 0 )
+            windowfunction(time, freq, N, M, winfreq, power);
+        else
+            windowfunctionW(time, freq, weight, N, M, winfreq, power);
+
+        // Move frequencies to the origin
+        arr_sca_add(freq, -winfreq, M);
     }
 
         

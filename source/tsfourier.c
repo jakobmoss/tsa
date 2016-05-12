@@ -12,7 +12,7 @@
 
 #define PI2micro 6.28318530717958647692528676655900576839433879875e-6
 
-void alpbet(double time[], double flux[], double ny, size_t N, double *alpha,\
+void alpbet(double time[], double flux[], size_t N, double ny, double *alpha, \
             double *beta);
 
 void alpbetW(double time[], double flux[], double weight[], size_t N,\
@@ -47,7 +47,7 @@ void fourier(double time[], double flux[], double freq[], size_t N, size_t M, \
             ny = freq[i] * PI2micro;
 
             // Calculate alpha and beta
-            alpbet(time, flux, ny, N, &alpha, &beta);
+            alpbet(time, flux, N, ny, &alpha, &beta);
                 
             // Store power
             power[i] = alpha*alpha + beta*beta;
@@ -57,7 +57,7 @@ void fourier(double time[], double flux[], double freq[], size_t N, size_t M, \
 
 
 // Calculate alpha and beta coefficients
-void alpbet(double time[], double flux[], double ny, size_t N, double *alpha,\
+void alpbet(double time[], double flux[], size_t N, double ny, double *alpha, \
             double *beta)
 {
     // Auxiliary
