@@ -65,7 +65,21 @@ int main(int argc, char *argv[])
     N = cmdarg(argc, argv, inname, outname, &quiet, &unit, &prep, &low, &high,\
                &rate, &autosamp, NULL, &useweight, NULL, NULL, 1);
 
+    /* Read data (and weights) from the input file */
+    if ( quiet == 0 ) printf(" - Reading input\n");
+    double* time = malloc(N * sizeof(double));
+    double* flux = malloc(N * sizeof(double));
+    double* weight = malloc(N * sizeof(double));
+    readcols(inname, time, flux, weight, N, useweight, unit, quiet);
+
+    
+    /* Free data */
+    free(time);
+    free(flux);
+    free(weight);
+
     
     /* Done! */
+    if ( quiet == 0 ) printf("Done!\n\n");
     return 0; 
 }
