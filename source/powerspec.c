@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
     
     /* Process command line arguments and return line count of the input file */
     N = cmdarg(argc, argv, inname, outname, &quiet, &unit, &prep, &low, &high,\
-               &rate, &autosamp, &fast, &useweight, &windowmode, &winfreq);
+               &rate, &autosamp, &fast, &useweight, &windowmode, &winfreq, 0);
     
     // Pretty print
     if ( quiet == 0 || fast == 1){

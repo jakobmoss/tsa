@@ -14,7 +14,7 @@
 int cmdarg(int argc, char *argv[], char inname[], char outname[], int *quiet,\
            int *unit, int *prep, double *low, double *high, double *rate,\
            int *autosamp, int *fast, int *useweight, int *windowmode,\
-           double *winfreq)
+           double *winfreq, int CLEAN)
 {
     // Internal
     int isamp = 0;
@@ -22,11 +22,21 @@ int cmdarg(int argc, char *argv[], char inname[], char outname[], int *quiet,\
     int iwin = 0;
     
     // Quit if wrong number of arguments is given!
-    if (argc < 5) {
-        fprintf(stderr, "usage: %s  [-window f0] [-w] [-q] [-t{sec|day|ms}]"\
-                " [-noprep] [-fast] -f {auto | low high rate | limit rate}"\
-                " input_file output_file\n", argv[0]);
-        exit(1);
+    if ( CLEAN == 0 ){
+        if (argc < 5) {
+            fprintf(stderr, "usage: %s  [-window f0] [-w] [-q] [-t{sec|day|ms}]" \
+                    " [-noprep] [-fast] -f {auto | low high rate | limit rate}" \
+                    " input_file output_file\n", argv[0]);
+            exit(1);
+        }
+    }
+    else {
+        if (argc < 7) {
+            fprintf(stderr, "usage: %s  [-w] [-q] [-t{sec|day|ms}]" \
+                    " [-noprep] -n number -f {auto | low high rate}" \
+                    " input_file output_file\n", argv[0]);
+            exit(1);
+        }
     }
 
     // Loop through given arguments (skipping program name)
