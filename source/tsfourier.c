@@ -38,6 +38,7 @@ void fourier(double time[], double flux[], double freq[], size_t N, size_t M, \
     double ny = 0;
     size_t i;
 
+    // Make parallel loop over all test frequencies
     #pragma omp parallel default(shared) private(alpha, beta, ny)
     {
         #pragma omp for schedule(static)
@@ -117,7 +118,8 @@ void fourierW(double time[], double flux[], double weight[], double freq[],\
 
     // Sum of all weights
     double sumweights = arr_sum(weight, N);
-    
+
+    // Make parallel loop over all test frequencies
     #pragma omp parallel default(shared) private(alpha, beta, ny)
     {
         #pragma omp for schedule(static)

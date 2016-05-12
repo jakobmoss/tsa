@@ -181,6 +181,7 @@ int main(int argc, char *argv[])
     }
     else {
         if ( quiet == 0 ) printf(" - Calculating window function\n");
+        windowfunction(time, freq, N, M, winfreq, power);
     }
 
         
