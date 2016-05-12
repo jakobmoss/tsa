@@ -65,6 +65,17 @@ int main(int argc, char *argv[])
     N = cmdarg(argc, argv, inname, outname, &quiet, &unit, &prep, &low, &high,\
                &rate, &autosamp, NULL, &useweight, NULL, NULL, 1);
 
+    // Pretty print
+    if ( quiet == 0 ){
+        if ( useweight != 0 )
+            printf("\nCLEANing frequencies from \"%s\" using weights...\n",\
+                   inname);
+        else
+            printf("\nCLEANing frequencies from \"%s\" without weights...\n",\
+                   inname);
+    }
+
+    
     /* Read data (and weights) from the input file */
     if ( quiet == 0 ) printf(" - Reading input\n");
     double* time = malloc(N * sizeof(double));
@@ -72,11 +83,52 @@ int main(int argc, char *argv[])
     double* weight = malloc(N * sizeof(double));
     readcols(inname, time, flux, weight, N, useweight, unit, quiet);
 
+    // Calculate Nyquist frequency
+    double* dt = malloc(N-1 * sizeof(double));
+    double nyquist;
+    arr_diff(time, dt, N);
+    nyquist = 1.0 / (2.0 * arr_median(dt, N-1)) * 1e6; // microHz !
+    free(dt);
+
+    // Calculate suggested sampling (4 times oversampling)
+    double minsamp;
+    minsamp = 1.0e6 / (4 * (time[N-1] - time[0])); // microHz !
+    
+    // Display info?
+    if ( quiet == 0 ){
+        printf(" -- INFO: Length of time series = %li\n", N);
+        printf(" -- INFO: Nyquist frequency = %.2lf microHz\n", nyquist);
+        printf(" -- INFO: Suggested minimum sampling = %.3lf microHz\n", \
+               minsamp);
+    }
+
+    // Apply automatic sampling?
+    if ( autosamp != 0 ) {
+        low = 5.0;
+        high = nyquist;
+        rate = minsamp;
+    }
+
+
+    /* Prepare for power spectrum */
+    // Get length of sampling vector
+    M = arr_util_getstep(low, high, rate);
+
+    // Fill sampling vector with cyclic frequencies
+    double* freq = malloc(M * sizeof(double));
+    arr_init_linspace(freq, low, rate, M);
+
+    // Initialise arrays for data storage
+    double* power = malloc(M * sizeof(double));
+
     
     /* Free data */
     free(time);
     free(flux);
     free(weight);
+    free(freq);
+    free(power);
+
 
     
     /* Done! */

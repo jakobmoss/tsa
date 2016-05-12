@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
                &rate, &autosamp, &fast, &useweight, &windowmode, &winfreq, 0);
     
     // Pretty print
-    if ( quiet == 0 || fast == 1){
+    if ( quiet == 0 || fast == 1 ){
         if ( windowmode == 0 && useweight != 0 )
             printf("\nCalculating the weighted power spectrum of \"%s\" ...\n",\
                    inname);
