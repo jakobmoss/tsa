@@ -20,6 +20,9 @@
  *  -t{sec|day|ms}: Unit of input file (seconds [default], days, megaseconds).
  *  -noprep: Do not subtract the mean of time series (for artificial data where
  *           the mean is 0).
+ *  -fast: Fast-mode. Disable Nyquist calculation (and hence automatic
+ *         sampling) for lower runtime. Activates quiet-mode automatically. Use
+ *         for benchmarking the pure I/O + algorithm.
  *
  * Note:
  * Using multi-threading with OpenMP. Set number of threads used by the shell
@@ -58,15 +61,16 @@ int main(int argc, char *argv[])
     int unit = 1;
     int prep = 1;
     int autosamp = 0;
+    int fast = 0;
     int useweight = 0;
 
     
     /* Process command line arguments and return line count of the input file */
     N = cmdarg(argc, argv, inname, outname, &quiet, &unit, &prep, &low, &high,\
-               &rate, &autosamp, NULL, &useweight, NULL, NULL, 1);
+               &rate, &autosamp, &fast, &useweight, NULL, NULL, 1);
 
     // Pretty print
-    if ( quiet == 0 ){
+    if ( quiet == 0 || fast == 1){
         if ( useweight != 0 )
             printf("\nCLEANing frequencies from \"%s\" using weights...\n",\
                    inname);
@@ -83,30 +87,33 @@ int main(int argc, char *argv[])
     double* weight = malloc(N * sizeof(double));
     readcols(inname, time, flux, weight, N, useweight, unit, quiet);
 
-    // Calculate Nyquist frequency
-    double* dt = malloc(N-1 * sizeof(double));
-    double nyquist;
-    arr_diff(time, dt, N);
-    nyquist = 1.0 / (2.0 * arr_median(dt, N-1)) * 1e6; // microHz !
-    free(dt);
+    // Do if fast-mode is not activated
+    if ( fast == 0 ) {
+        // Calculate Nyquist frequency
+        double* dt = malloc(N-1 * sizeof(double));
+        double nyquist;
+        arr_diff(time, dt, N);
+        nyquist = 1.0 / (2.0 * arr_median(dt, N-1)) * 1e6; // microHz !
+        free(dt);
 
-    // Calculate suggested sampling (4 times oversampling)
-    double minsamp;
-    minsamp = 1.0e6 / (4 * (time[N-1] - time[0])); // microHz !
+        // Calculate suggested sampling (4 times oversampling)
+        double minsamp;
+        minsamp = 1.0e6 / (4 * (time[N-1] - time[0])); // microHz !
     
-    // Display info?
-    if ( quiet == 0 ){
-        printf(" -- INFO: Length of time series = %li\n", N);
-        printf(" -- INFO: Nyquist frequency = %.2lf microHz\n", nyquist);
-        printf(" -- INFO: Suggested minimum sampling = %.3lf microHz\n", \
-               minsamp);
-    }
+        // Display info?
+        if ( quiet == 0 ){
+            printf(" -- INFO: Length of time series = %li\n", N);
+            printf(" -- INFO: Nyquist frequency = %.2lf microHz\n", nyquist);
+            printf(" -- INFO: Suggested minimum sampling = %.3lf microHz\n",\
+                   minsamp);
+        }
 
-    // Apply automatic sampling?
-    if ( autosamp != 0 ) {
-        low = 5.0;
-        high = nyquist;
-        rate = minsamp;
+        // Apply automatic sampling?
+        if ( autosamp != 0 ) {
+            low = 5.0;
+            high = nyquist;
+            rate = minsamp;
+        }
     }
 
 
@@ -132,6 +139,6 @@ int main(int argc, char *argv[])
 
     
     /* Done! */
-    if ( quiet == 0 ) printf("Done!\n\n");
+    if ( quiet == 0 || fast ==1 ) printf("Done!\n\n");
     return 0; 
 }
