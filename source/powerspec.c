@@ -3,11 +3,13 @@
  * Usage:
  * powerspec.x [options] sampling inputfile outputfile
  *
- * Sampling: -f {auto | low high rate}
+ * Sampling: -f {auto | low high rate | limit rate}
  *   auto: Calculate power spectrum from 5 microHertz to Nyquist frequency
  *         with four times oversampling (auto is a key word, use as "-f auto").
  *   low high rate: Values for sampling in microHz (e.g. "-f 1500 4000 0.1", to
  *                  sample from 1500 to 4000 microHz in steps of 0.1 microHz).
+ *   limit rate: ONLY IN THE CASE OF window-function-mode. Sample the window
+ *               function in the range +/- limit in steps of rate.
  *
  * Special options:
  *  -window f0: Activate window-function-mode. Calculate the (power spectrum of)
@@ -15,11 +17,12 @@
  *              provided input times and weights, as well as the provided
  *              frequency sampling.
  *              NOTE: Remember to specify the frequency f0! Unit is microHertz.
- *              NOTE 2: This switch will *not* produce a power spectrum of the
+ *              NOTE 2: Remember to specify a correct sampling (see above).
+ *              NOTE 3: This switch will *not* produce a power spectrum of the
  *                    input data.
- *              NOTE 3: The -noprep switch is meaningless with this option,
+ *              NOTE 4: The -noprep switch is meaningless with this option,
  *                      since the input data is not used (only the times).
- *              NOTE 4: Will activate pseudo fast-mode and hence disable
+ *              NOTE 5: Will activate pseudo fast-mode and hence disable
  *                      automatic sampling and Nyquist calculation.
 
  * Options:
@@ -90,8 +93,7 @@ int main(int argc, char *argv[])
         else if ( windowmode == 0 )
             printf("\nCalculating the power spectrum of \"%s\" ...\n", inname);
         else
-            printf("\nCalculating the window function at %.1lf microHz of"\
-                   " \"%s\" ...\n", winfreq, inname);
+            printf("\nCalculating the window function of \"%s\" ...\n", inname);
     }
     
 
@@ -133,6 +135,14 @@ int main(int argc, char *argv[])
 
     
     /* Prepare for power spectrum */
+    // Calculate proper frequency range for window-function-mode
+    double limit = 0;
+    if ( windowmode != 0 ) {
+        limit = low;
+        high = winfreq + limit;
+        low = winfreq - limit;
+    }
+    
     // Get length of sampling vector
     M = arr_util_getstep(low, high, rate);
 
@@ -145,7 +155,7 @@ int main(int argc, char *argv[])
 
 
     /* Calculate power spectrum OR window function */
-    if ( windowmode == 0) {
+    if ( windowmode == 0 ) {
         // Subtract the mean to avoid "zero-frequency" problems
         if ( prep != 0 ) {
             if ( quiet == 0 ){
@@ -180,7 +190,13 @@ int main(int argc, char *argv[])
             fourierW(time, flux, weight, freq, N, M, power);
     }
     else {
-        if ( quiet == 0 ) printf(" - Calculating window function\n");
+        if ( quiet == 0 ){
+            printf(" - Calculating window function\n");
+            printf(" -- INFO: Window frequency = %.2lf microHz\n", winfreq);
+            printf(" -- INFO: Sampling in the range +/- %.2lf microHz in" \
+                   " steps of %.4lf microHz\n", limit, rate);
+            printf(" -- INFO: Number of sampling frequencies = %li\n", M);
+        }
 
         // Calculate spectral window with or without weights
         if ( useweight == 0 )

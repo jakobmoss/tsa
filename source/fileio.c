@@ -19,12 +19,13 @@ int cmdarg(int argc, char *argv[], char inname[], char outname[], int *quiet,\
     // Internal
     int isamp = 0;
     int ifast = 0;
+    int iwin = 0;
     
     // Quit if wrong number of arguments is given!
     if (argc < 5) {
         fprintf(stderr, "usage: %s  [-window f0] [-w] [-q] [-t{sec|day|ms}]"\
-                " [-noprep] [-fast] -f {auto | low high rate} input_file"\
-                " output_file\n", argv[0]);
+                " [-noprep] [-fast] -f {auto | low high rate | limit rate}"\
+                " input_file output_file\n", argv[0]);
         exit(1);
     }
 
@@ -61,6 +62,7 @@ int cmdarg(int argc, char *argv[], char inname[], char outname[], int *quiet,\
         // Windowfunction-mode
         else if ( strcmp(argv[i], "-window" ) == 0 ) {
             *windowmode = 1;
+            iwin = 1;
 
             // Read frequency
             i++;
@@ -70,9 +72,19 @@ int cmdarg(int argc, char *argv[], char inname[], char outname[], int *quiet,\
         else if ( strcmp(argv[i], "-f" ) == 0 ) {
             // Go to first option
             i++;
-            
+
+            // Is window mode activated?
+            if ( iwin == 1 ) {
+                isamp = 3;
+
+                // Read values and increment i
+                // Note: 'limit' is stored in 'low' to avoid passing more vars
+                *low = atof(argv[i]);
+                i++;
+                *rate = atof(argv[i]);
+            }
             // Check for automatic sampling
-            if ( strcmp(argv[i], "auto") == 0) {
+            else if ( strcmp(argv[i], "auto") == 0) {
                 isamp = 1;
                 *autosamp = 1;
             }
