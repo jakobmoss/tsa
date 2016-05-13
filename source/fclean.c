@@ -125,8 +125,18 @@ int main(int argc, char *argv[])
     double* freq = malloc(M * sizeof(double));
     arr_init_linspace(freq, low, rate, M);
 
-    // Initialise arrays for data storage
-    double* power = malloc(M * sizeof(double));
+
+    /* Find and clean peaks */
+    // Init variables
+    double fmax = 0;
+    double alpmax = 0;
+    double betmax = 0;
+
+    // Call with or without weights
+    if ( useweight == 0 )
+        fouriermax(time, flux, NULL, freq, N, M, fmax, alpmax, betmax, 0);
+    else
+        fouriermax(time, flux, weight, freq, N, M, fmax, alpmax, betmax, 1);
 
     
     /* Free data */
@@ -134,7 +144,6 @@ int main(int argc, char *argv[])
     free(flux);
     free(weight);
     free(freq);
-    free(power);
 
 
     

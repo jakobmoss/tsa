@@ -5,6 +5,7 @@
  * Author: Jakob Rørsted Mosumgaard
  */
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <omp.h>
@@ -173,4 +174,51 @@ void alpbetW(double time[], double flux[], double weight[], size_t N,\
     D = ss*cc - sc*sc;
     *alpha = (s * cc - c * sc)/D;
     *beta  = (c * ss - s * sc)/D;
+}
+
+
+void fouriermax(double time[], double flux[], double weight[], double freq[],\
+                size_t N, size_t M, double fmax, double alpmax,\
+                double betmax, int useweight)
+{
+    // Local variables
+    double alpha = 0;
+    double beta = 0;
+    double ny = 0;
+    size_t i;
+
+    // Call functions with or without weights
+    if ( useweight == 0 ) {
+        // Make parallel loop over all test frequencies
+        #pragma omp parallel default(shared) private(alpha, beta, ny)
+        {
+            #pragma omp for schedule(static)
+            for (i = 0; i < M; ++i) {
+                // Current frequency
+                ny = freq[i] * PI2micro;
+
+                // Calculate alpha and beta
+                alpbet(time, flux, N, ny, &alpha, &beta);
+            }
+        }
+    }
+    else {
+        // Sum of all weights
+        double sumweights = arr_sum(weight, N);
+
+        // Make parallel loop over all test frequencies
+        #pragma omp parallel default(shared) private(alpha, beta, ny)
+        {
+            #pragma omp for schedule(static)
+            for (i = 0; i < M; ++i) {
+                // Current frequency
+                ny = freq[i] * PI2micro;
+
+                // Calculate alpha and beta
+                alpbetW(time, flux, weight, N, ny, sumweights, &alpha, &beta);
+            }
+        }
+    }
+
+    // Done!
 }
