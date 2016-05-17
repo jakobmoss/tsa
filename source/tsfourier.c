@@ -187,18 +187,53 @@ void fouriermax(double time[], double flux[], double weight[], double freq[],\
     double ny = 0;
     size_t i;
 
+    // Local variables for finding the peak
+    double p = 0;
+    double pmaxlocal;
+    double nymaxlocal;
+
+    // Maximum power (global)
+    double pmax = 0;
+    double nymax = 0;
+
     // Call functions with or without weights
     if ( useweight == 0 ) {
         // Make parallel loop over all test frequencies
-        #pragma omp parallel default(shared) private(alpha, beta, ny)
+        #pragma omp parallel default(shared) private(alpha, beta, ny, p, pmaxlocal, nymaxlocal)
         {
-            #pragma omp for schedule(static)
+            // Reset varibles
+            pmaxlocal = 0;
+            nymaxlocal = 0;
+
+            // Do the loop (nowait -> each threads can move on to comparison)
+            #pragma omp for schedule(static) nowait
             for (i = 0; i < M; ++i) {
                 // Current frequency
                 ny = freq[i] * PI2micro;
 
-                // Calculate alpha and beta
+                // Calculate alpha, beta and power
                 alpbet(time, flux, N, ny, &alpha, &beta);
+                p = alpha*alpha + beta*beta;
+
+                // Compare to current maximum power
+                if ( p > pmaxlocal ) {
+                    pmaxlocal = p;
+                    nymaxlocal = ny;
+                }
+            }
+
+            // Make sure we use the maximum from all the threads
+            // NOTE: Double check, since the critical region is slow and should
+            //       only be entered when necessary (and value can be changed
+            //       by several threads, see: goo.gl/lwnzTn)!
+            if ( pmaxlocal > pmax ) {
+                #pragma omp critical
+                {
+                    if ( pmaxlocal > pmax ) {
+                        pmax = pmaxlocal;
+                        nymax = nymaxlocal;
+                    }
+                }
             }
         }
     }
@@ -220,5 +255,8 @@ void fouriermax(double time[], double flux[], double weight[], double freq[],\
         }
     }
 
+    printf("pmax = %lf\n", pmax);
+    printf("fmax = %lf\n", nymax/PI2micro);
+    
     // Done!
 }
