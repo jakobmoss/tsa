@@ -41,6 +41,7 @@
 #include "tsfourier.h"
 #include "window.h"
 
+#define OVERSAMP 1
 
 int main(int argc, char *argv[])
 {
@@ -98,7 +99,7 @@ int main(int argc, char *argv[])
 
         // Calculate suggested sampling (4 times oversampling)
         double minsamp;
-        minsamp = 1.0e6 / (4 * (time[N-1] - time[0])); // microHz !
+        minsamp = 1.0e6 / (OVERSAMP * (time[N-1] - time[0])); // microHz !
     
         // Display info?
         if ( quiet == 0 ){
@@ -138,7 +139,10 @@ int main(int argc, char *argv[])
     else
         fouriermax(time, flux, weight, freq, N, M, &fmax, &alpmax, &betmax, 1);
 
-
+    printf("fmax = %lf\n", fmax);
+    printf("pmax = %lf\n", alpmax*alpmax + betmax*betmax);
+    
+    
     /* Free data */
     free(time);
     free(flux);
