@@ -14,7 +14,7 @@ LDLIBS += -lm -fopenmp
 # Name of program and dependencies
 NAME = powerspec
 NAME2 = fclean
-DEPEND = fileio.o arrlib.o tsfourier.o window.o
+DEPEND = fileio.o arrlib.o tsfourier.o window.o fmin.o
 
 # What to build
 all: $(NAME) $(NAME2)

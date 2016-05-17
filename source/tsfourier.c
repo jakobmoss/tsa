@@ -9,7 +9,9 @@
 #include <stdlib.h>
 #include <math.h>
 #include <omp.h>
+
 #include "arrlib.h"
+#include "fmin.h"
 
 #define PI2micro 6.28318530717958647692528676655900576839433879875e-6
 
