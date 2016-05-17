@@ -134,11 +134,11 @@ int main(int argc, char *argv[])
 
     // Call with or without weights
     if ( useweight == 0 )
-        fouriermax(time, flux, NULL, freq, N, M, fmax, alpmax, betmax, 0);
+        fouriermax(time, flux, NULL, freq, N, M, &fmax, &alpmax, &betmax, 0);
     else
-        fouriermax(time, flux, weight, freq, N, M, fmax, alpmax, betmax, 1);
+        fouriermax(time, flux, weight, freq, N, M, &fmax, &alpmax, &betmax, 1);
 
-    
+
     /* Free data */
     free(time);
     free(flux);

@@ -14,6 +14,7 @@
 #include "fmin.h"
 
 #define PI2micro 6.28318530717958647692528676655900576839433879875e-6
+#define EPS 1.0e-9
 
 void alpbet(double time[], double flux[], size_t N, double ny, double *alpha, \
             double *beta);
@@ -180,8 +181,8 @@ void alpbetW(double time[], double flux[], double weight[], size_t N,\
 
 
 void fouriermax(double time[], double flux[], double weight[], double freq[],\
-                size_t N, size_t M, double fmax, double alpmax,\
-                double betmax, int useweight)
+                size_t N, size_t M, double *fmax, double *alpmax,\
+                double *betmax, int useweight)
 {
     // Local variables
     double alpha = 0;
@@ -200,6 +201,15 @@ void fouriermax(double time[], double flux[], double weight[], double freq[],\
 
     // Call functions with or without weights
     if ( useweight == 0 ) {
+        // Function for minimisation (nested for variable access)
+        double powopt(double optny)
+        {
+            double optalpha, optbeta, optpower;
+            alpbet(time, flux, N, optny, &optalpha, &optbeta);
+            optpower = optalpha*optalpha + optbeta*optbeta;
+            return -optpower;
+        }
+        
         // Make parallel loop over all test frequencies
         #pragma omp parallel default(shared) private(alpha, beta, ny, p, pmaxlocal, nymaxlocal)
         {
@@ -238,6 +248,14 @@ void fouriermax(double time[], double flux[], double weight[], double freq[],\
                 }
             }
         }
+
+        // Search around found peak for the "true" minimum
+        double df = PI2micro * (freq[1] - freq[0]);
+        pmax = - fmin_golden(powopt, nymax-df, nymax+df, EPS, &nymax);
+
+        // Store the optimised values
+        alpbet(time, flux, N, nymax, alpmax, betmax);
+        *fmax = nymax/PI2micro;
     }
     else {
         // Sum of all weights
@@ -256,9 +274,5 @@ void fouriermax(double time[], double flux[], double weight[], double freq[],\
             }
         }
     }
-
-    printf("pmax = %lf\n", pmax);
-    printf("fmax = %lf\n", nymax/PI2micro);
-    
     // Done!
 }
