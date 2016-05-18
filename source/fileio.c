@@ -14,7 +14,7 @@
 int cmdarg(int argc, char *argv[], char inname[], char outname[], int *quiet,\
            int *unit, int *prep, double *low, double *high, double *rate,\
            int *autosamp, int *fast, int *useweight, int *windowmode,\
-           double *winfreq, int *CLEAN)
+           double *winfreq, int *CLEAN, int *filter)
 {
     // Internal
     int isamp = 0;

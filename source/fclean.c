@@ -38,7 +38,6 @@
 #include "fileio.h"
 #include "arrlib.h"
 #include "tsfourier.h"
-#include "window.h"
 
 #define PI2micro 6.28318530717958647692528676655900576839433879875e-6
 
@@ -66,10 +65,12 @@ int main(int argc, char *argv[])
     int fast = 0;
     int useweight = 0;
     int Nclean = 1;
+    int filter = 0;
+
     
     /* Process command line arguments and return line count of the input file */
     N = cmdarg(argc, argv, inname, outname, &quiet, &unit, &prep, &low, &high,\
-               &rate, &autosamp, &fast, &useweight, NULL, NULL, &Nclean);
+               &rate, &autosamp, &fast, &useweight, NULL, NULL, &Nclean, &filter);
 
     // Pretty print
     if ( quiet == 0 || fast == 1){
