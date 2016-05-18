@@ -33,7 +33,7 @@ int cmdarg(int argc, char *argv[], char inname[], char outname[], int *quiet,\
     else {
         if (argc < 7) {
             fprintf(stderr, "usage: %s  [-w] [-q] [-t{sec|day|ms}]" \
-                    " [-noprep] -n number -f {low high}" \
+                    " [-noprep] -n number -f {low high factor}" \
                     " input_file output_file\n", argv[0]);
             exit(1);
         }
@@ -98,17 +98,6 @@ int cmdarg(int argc, char *argv[], char inname[], char outname[], int *quiet,\
                 i++;
                 *rate = atof(argv[i]);
             }
-            // Is CLEAN running?
-            else if ( *CLEAN != 0 ) {
-                isamp = 4;
-
-                printf("Wah!\n");
-                
-                // Read values and increment i
-                *low = atof(argv[i]);
-                i++;
-                *high = atof(argv[i]);
-            }
             // Check for automatic sampling
             else if ( strcmp(argv[i], "auto") == 0) {
                 isamp = 1;
@@ -123,7 +112,7 @@ int cmdarg(int argc, char *argv[], char inname[], char outname[], int *quiet,\
                 i++;
                 *high = atof(argv[i]);
                 i++;
-                *rate = atof(argv[i]);
+                *rate = atof(argv[i]);  // For CLEAN, this is 'factor'
             }
             else {
                 break;

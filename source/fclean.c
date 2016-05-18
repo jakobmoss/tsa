@@ -5,12 +5,11 @@
  *
  * Number: Select the number of frequencies to CLEAN. E.g. -n 3
  * 
- * Sampling: -f {auto | low high}
+ * Sampling: -f {auto | low high factor}
  *   auto: Calculate power spectrum from 5 microHertz to the Nyquist frequency
- *         with some oversampling (auto is a key word, use as "-f auto").
- *   low high: Values for sampling limits in microHz (e.g. "-f 1500 4000", to
- *             sample from 1500 to 4000 microHz). Note that the sampling rate
- *             is automatically chosen.
+ *         with four times oversampling (auto is a key word, use as "-f auto").
+ *   low high factor: Values for sampling in microHz (e.g. "-f 1500 4000 2", to
+ *             sample from 1500 to 4000 microHz with 2 times oversampling).
  *
  * Options:
  *  -w: Calculate weighted power spectrum -- requires an extra column in the
@@ -40,7 +39,8 @@
 #include "tsfourier.h"
 #include "window.h"
 
-#define OVERSAMP 1
+#define PI2micro 6.28318530717958647692528676655900576839433879875e-6
+
 
 int main(int argc, char *argv[])
 {
@@ -96,15 +96,16 @@ int main(int argc, char *argv[])
         nyquist = 1.0 / (2.0 * arr_median(dt, N-1)) * 1e6; // microHz !
         free(dt);
 
-        // Calculate suggested sampling (N times oversampling)
-        double minsamp = 1.0e6 / (OVERSAMP * (time[N-1] - time[0])); // microHz !
+        // Calculate sampling (N times oversampling: N is stored in 'rate')
+        int oversamp = (int) rate;
+        double minsamp = 1.0e6 / (oversamp * (time[N-1] - time[0])); // microHz !
     
         // Display info?
         if ( quiet == 0 ){
             printf(" -- INFO: Length of time series = %li\n", N);
             printf(" -- INFO: Nyquist frequency = %.2lf microHz\n", nyquist);
             printf(" -- INFO: Using %i times oversampling = %.3lf microHz\n",\
-                   OVERSAMP, minsamp);
+                   oversamp, minsamp);
         }
 
         // Apply sampling in a provided range or the full range
@@ -119,7 +120,8 @@ int main(int argc, char *argv[])
     }
     else {
         // Only set the suggested sampling
-        double minsamp = 1.0e6 / (OVERSAMP * (time[N-1] - time[0])); // microHz !
+        int oversamp = (int) rate;
+        double minsamp = 1.0e6 / (oversamp * (time[N-1] - time[0])); // microHz !
         rate = minsamp;
     }
 
@@ -177,7 +179,13 @@ int main(int argc, char *argv[])
 
         // Calculate the power
         powmax = alpmax*alpmax + betmax*betmax;
-        printf(" %15.6lf %12.6lf \n", fmax, powmax);
+        if ( quiet == 0) printf(" %15.6lf %12.6lf \n", fmax, powmax);
+
+        // Remove frequency from time series
+        for (int j = 0; j < N; ++j) {
+            flux[j] = flux[j] - alpmax * sin( PI2micro*fmax * time[j] ) - \
+                                betmax * cos( PI2micro*fmax * time[j] );
+        }
     
     }
 
