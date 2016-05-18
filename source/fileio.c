@@ -14,7 +14,7 @@
 int cmdarg(int argc, char *argv[], char inname[], char outname[], int *quiet,\
            int *unit, int *prep, double *low, double *high, double *rate,\
            int *autosamp, int *fast, int *useweight, int *windowmode,\
-           double *winfreq, int CLEAN)
+           double *winfreq, int *CLEAN)
 {
     // Internal
     int isamp = 0;
@@ -22,7 +22,7 @@ int cmdarg(int argc, char *argv[], char inname[], char outname[], int *quiet,\
     int iwin = 0;
     
     // Quit if wrong number of arguments is given!
-    if ( CLEAN == 0 ){
+    if ( *CLEAN == 0 ){
         if (argc < 5) {
             fprintf(stderr, "usage: %s  [-window f0] [-w] [-q] [-t{sec|day|ms}]" \
                     " [-noprep] [-fast] -f {auto | low high rate | limit rate}" \
@@ -78,6 +78,11 @@ int cmdarg(int argc, char *argv[], char inname[], char outname[], int *quiet,\
             i++;
             *winfreq = atof(argv[i]);
         }
+        // Number of frequencies for CLEAN
+        else if ( strcmp(argv[i], "-n" ) == 0 ) {
+            i++;
+            *CLEAN = atoi(argv[i]);
+        }
         // Sampling
         else if ( strcmp(argv[i], "-f" ) == 0 ) {
             // Go to first option
@@ -93,10 +98,12 @@ int cmdarg(int argc, char *argv[], char inname[], char outname[], int *quiet,\
                 i++;
                 *rate = atof(argv[i]);
             }
-            // Are CLEAN running?
-            else if ( CLEAN == 1 ) {
+            // Is CLEAN running?
+            else if ( *CLEAN != 0 ) {
                 isamp = 4;
 
+                printf("Wah!\n");
+                
                 // Read values and increment i
                 *low = atof(argv[i]);
                 i++;

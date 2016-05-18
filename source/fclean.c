@@ -63,19 +63,19 @@ int main(int argc, char *argv[])
     int autosamp = 0;
     int fast = 0;
     int useweight = 0;
-
+    int Nclean = 1;
     
     /* Process command line arguments and return line count of the input file */
     N = cmdarg(argc, argv, inname, outname, &quiet, &unit, &prep, &low, &high,\
-               &rate, &autosamp, &fast, &useweight, NULL, NULL, 1);
+               &rate, &autosamp, &fast, &useweight, NULL, NULL, &Nclean);
 
     // Pretty print
     if ( quiet == 0 || fast == 1){
         if ( useweight != 0 )
-            printf("\nCLEANing frequencies from \"%s\" using weights...\n",\
+            printf("\nCLEANing the time series \"%s\" using weights...\n",\
                    inname);
         else
-            printf("\nCLEANing frequencies from \"%s\" without weights...\n",\
+            printf("\nCLEANing the time series \"%s\" without weights...\n",\
                    inname);
     }
 
@@ -155,7 +155,8 @@ int main(int argc, char *argv[])
 
     // Display info
     if ( quiet == 0 ) {
-        printf(" - CLEANing in the range %.1lf to %.1lf microHz\n", low, high);
+        printf(" - CLEANing %i frequencies in the range %.1lf to %.1lf"\
+               " microHz\n", Nclean, low, high);
     }
 
     // Call with or without weights
