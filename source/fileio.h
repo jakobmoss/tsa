@@ -7,3 +7,7 @@ void readcols(char *fname, double x[], double y[], double z[], size_t N,\
               int three, int unit, int quiet);
 
 void writecols(char *fname, double x[], double y[], size_t N);
+
+void writecols3(char *fname, double x[], double y[], double z[], size_t N,\
+                int three, int unit);
+

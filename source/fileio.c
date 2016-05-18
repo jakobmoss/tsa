@@ -175,7 +175,7 @@ void readcols(char *fname, double x[], double y[], double z[], size_t N,\
 {
     // Read the file depending on the number of columns
     FILE* infile = fopen(fname, "r");
-    if ( three == 0) {
+    if ( three == 0 ) {
         for (size_t i = 0; i < N+1; ++i) {
             if ( fscanf(infile ,"%lf%lf", &x[i], &y[i] ) != 2) break;
         }
@@ -225,9 +225,51 @@ void writecols(char *fname, double x[], double y[], size_t N)
 
     // Check if file is available
     if (outfile != NULL) {
-        size_t i;
-        for ( i = 0; i < N; ++i ) {
+        for (size_t i = 0; i < N; ++i ) {
             fprintf(outfile, "%15.9e %18.9e\n", x[i], y[i]);
+        }
+        fclose(outfile);
+    }
+}
+
+
+/* Write file with two or three columns of data and units */
+void writecols3(char *fname, double x[], double y[], double z[], size_t N,\
+                int three, int unit)
+{
+    // Convert units (to match original data)
+    if ( unit != 1 ) {
+        double scaling = 1;
+        
+        // Days
+        if ( unit == 2 ) {
+            scaling = 86400.0;
+        }
+        // Mega seconds
+        else if ( unit == 3 ) {
+            scaling = 1e6;
+        }
+
+        // Apply to the time vector
+        for (size_t j = 0; j < N+1; ++j) {
+            x[j] /= scaling;
+        }
+    }
+
+    // Open file
+    FILE* outfile = fopen(fname, "w");
+
+    // Check if file is available
+    if (outfile != NULL) {
+        if ( three == 0 ) {
+            for ( size_t i = 0; i < N; ++i ) {
+                fprintf(outfile, "%15.9e %18.9e\n", x[i], y[i]);
+            }
+        }
+        else {
+            for ( size_t i = 0; i < N; ++i ) {
+                fprintf(outfile, "%15.9e %18.9e %18.9e\n", x[i], y[i], z[i]);
+            }            
         }
         fclose(outfile);
     }

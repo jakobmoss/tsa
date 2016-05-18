@@ -137,11 +137,11 @@ int main(int argc, char *argv[])
         printf(" -- INFO: Number of sampling frequencies = %li\n", M);
 
     // Subtract the mean to avoid "zero-frequency" problems
+    double fmean = 0;
     if ( prep != 0 ) {
-        if ( quiet == 0 ){
-            printf(" - Subtracting the mean from time series\n");
-        }
-        arr_sca_add(flux, -arr_mean(flux, N), N);
+        if ( quiet == 0 ) printf(" - Subtracting the mean from time series\n");
+        fmean = arr_mean(flux, N);
+        arr_sca_add(flux, -fmean, N);
     }
     else {
         if ( quiet == 0 )
@@ -191,7 +191,17 @@ int main(int argc, char *argv[])
 
     // Final touch
     if ( quiet == 0 ) printf("\n");
+
     
+    /* Write CLEANed time series to file */
+    if ( quiet == 0 ) printf(" - Saving to file \"%s\"\n", outname);
+
+    // Add the mean to the time series data again
+    if ( prep != 0 ) arr_sca_add(flux, fmean, N);
+
+    // Save to file
+    writecols3(outname, time, flux, weight, N, useweight, unit);
+
     
     /* Free data */
     free(time);
