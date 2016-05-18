@@ -261,18 +261,61 @@ void fouriermax(double time[], double flux[], double weight[], double freq[],\
         // Sum of all weights
         double sumweights = arr_sum(weight, N);
 
-        // Make parallel loop over all test frequencies
-        #pragma omp parallel default(shared) private(alpha, beta, ny)
+        // Function for minimisation (nested for variable access)
+        double powopt(double optny)
         {
+            double optalpha, optbeta, optpower;
+            alpbetW(time, flux, weight, N, optny, sumweights, &optalpha, &optbeta);
+            optpower = optalpha*optalpha + optbeta*optbeta;
+            return -optpower;
+        }
+
+        // Make parallel loop over all test frequencies
+        #pragma omp parallel default(shared) private(alpha, beta, ny, p, pmaxlocal, nymaxlocal)
+        {
+            // Reset varibles
+            pmaxlocal = 0;
+            nymaxlocal = 0;
+
+            // Do the loop (nowait -> each threads can move on to comparison)
             #pragma omp for schedule(static)
             for (i = 0; i < M; ++i) {
                 // Current frequency
                 ny = freq[i] * PI2micro;
 
-                // Calculate alpha and beta
+                // Calculate alpha, beta and power
                 alpbetW(time, flux, weight, N, ny, sumweights, &alpha, &beta);
+                p = alpha*alpha + beta*beta;
+
+                // Compare to current maximum power
+                if ( p > pmaxlocal ) {
+                    pmaxlocal = p;
+                    nymaxlocal = ny;
+                }
+            }
+
+            // Make sure we use the maximum from all the threads
+            // NOTE: Double check, since the critical region is slow and should
+            //       only be entered when necessary (and value can be changed
+            //       by several threads, see: goo.gl/lwnzTn)!
+            if ( pmaxlocal > pmax ) {
+                #pragma omp critical
+                {
+                    if ( pmaxlocal > pmax ) {
+                        pmax = pmaxlocal;
+                        nymax = nymaxlocal;
+                    }
+                }
             }
         }
+
+        // Search around found peak for the "true" minimum
+        double df = PI2micro * (freq[1] - freq[0]);
+        pmax = - fmin_golden(powopt, nymax-df, nymax+df, EPS, &nymax);
+
+        // Store the optimised values
+        alpbetW(time, flux, weight, N, nymax, sumweights, alpmax, betmax);
+        *fmax = nymax/PI2micro;
     }
     // Done!
 }
