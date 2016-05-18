@@ -149,24 +149,40 @@ int main(int argc, char *argv[])
 
     /* Find and clean peaks */
     // Init variables
-    double fmax = 0;
-    double alpmax = 0;
-    double betmax = 0;
-
+    double fmax, alpmax, betmax, powmax;
+    
     // Display info
     if ( quiet == 0 ) {
         printf(" - CLEANing %i frequencies in the range %.1lf to %.1lf"\
                " microHz\n", Nclean, low, high);
+        printf("\n %9s %11s %11s\n", "Number", "Frequency", "Power");
     }
 
-    // Call with or without weights
-    if ( useweight == 0 )
-        fouriermax(time, flux, NULL, freq, N, M, &fmax, &alpmax, &betmax, 0);
-    else
-        fouriermax(time, flux, weight, freq, N, M, &fmax, &alpmax, &betmax, 1);
+    // Enter CLEAN-loop
+    for (int i = 0; i < Nclean; ++i) {
+        // Display progress
+        if ( quiet == 0 ) printf(" %6i", i+1);
 
-    printf("fmax = %lf\n", fmax);
-    printf("pmax = %lf\n", alpmax*alpmax + betmax*betmax);
+        // Reset variables
+        fmax = 0;
+        alpmax = 0;
+        betmax = 0;
+        powmax = 0;
+
+        // Call with or without weights
+        if ( useweight == 0 )
+            fouriermax(time, flux, NULL, freq, N, M, &fmax, &alpmax, &betmax, 0);
+        else
+            fouriermax(time, flux, weight, freq, N, M, &fmax, &alpmax, &betmax, 1);
+
+        // Calculate the power
+        powmax = alpmax*alpmax + betmax*betmax;
+        printf(" %15.6lf %12.6lf \n", fmax, powmax);
+    
+    }
+
+    // Final touch
+    if ( quiet == 0 ) printf("\n");
     
     
     /* Free data */
