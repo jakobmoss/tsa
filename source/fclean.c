@@ -5,13 +5,12 @@
  *
  * Number: Select the number of frequencies to CLEAN. E.g. -n 3
  * 
- * Sampling: -f {auto | low high rate}
- *   auto: Calculate power spectrum from 5 microHertz to Nyquist frequency
- *         with four times oversampling (auto is a key word, use as "-f auto").
- *   low high rate: Values for sampling in microHz (e.g. "-f 1500 4000 0.1", to
- *                  sample from 1500 to 4000 microHz in steps of 0.1 microHz).
- *   limit rate: ONLY IN THE CASE OF window-function-mode. Sample the window
- *               function in the range +/- limit in steps of rate.
+ * Sampling: -f {auto | low high}
+ *   auto: Calculate power spectrum from 5 microHertz to the Nyquist frequency
+ *         with some oversampling (auto is a key word, use as "-f auto").
+ *   low high: Values for sampling limits in microHz (e.g. "-f 1500 4000", to
+ *             sample from 1500 to 4000 microHz). Note that the sampling rate
+ *             is automatically chosen.
  *
  * Options:
  *  -w: Calculate weighted power spectrum -- requires an extra column in the
@@ -21,8 +20,8 @@
  *  -noprep: Do not subtract the mean of time series (for artificial data where
  *           the mean is 0).
  *  -fast: Fast-mode. Disable Nyquist calculation (and hence automatic
- *         sampling) for lower runtime. Activates quiet-mode automatically. Use
- *         for benchmarking the pure I/O + algorithm.
+ *         sampling range) for lower runtime. Activates quiet-mode. Use for
+ *         benchmarking the pure I/O + algorithm.
  *
  * Note:
  * Using multi-threading with OpenMP. Set number of threads used by the shell
@@ -97,27 +96,34 @@ int main(int argc, char *argv[])
         nyquist = 1.0 / (2.0 * arr_median(dt, N-1)) * 1e6; // microHz !
         free(dt);
 
-        // Calculate suggested sampling (4 times oversampling)
-        double minsamp;
-        minsamp = 1.0e6 / (OVERSAMP * (time[N-1] - time[0])); // microHz !
+        // Calculate suggested sampling (N times oversampling)
+        double minsamp = 1.0e6 / (OVERSAMP * (time[N-1] - time[0])); // microHz !
     
         // Display info?
         if ( quiet == 0 ){
             printf(" -- INFO: Length of time series = %li\n", N);
             printf(" -- INFO: Nyquist frequency = %.2lf microHz\n", nyquist);
-            printf(" -- INFO: Suggested minimum sampling = %.3lf microHz\n",\
-                   minsamp);
+            printf(" -- INFO: Using %i times oversampling = %.3lf microHz\n",\
+                   OVERSAMP, minsamp);
         }
 
-        // Apply automatic sampling?
-        if ( autosamp != 0 ) {
+        // Apply sampling in a provided range or the full range
+        if ( autosamp == 0 ) {
+            rate = minsamp;
+        }
+        else { 
             low = 5.0;
             high = nyquist;
             rate = minsamp;
         }
     }
+    else {
+        // Only set the suggested sampling
+        double minsamp = 1.0e6 / (OVERSAMP * (time[N-1] - time[0])); // microHz !
+        rate = minsamp;
+    }
 
-
+    
     /* Prepare for power spectrum */
     // Get length of sampling vector
     M = arr_util_getstep(low, high, rate);
@@ -125,6 +131,20 @@ int main(int argc, char *argv[])
     // Fill sampling vector with cyclic frequencies
     double* freq = malloc(M * sizeof(double));
     arr_init_linspace(freq, low, rate, M);
+    if ( quiet == 0 )
+        printf(" -- INFO: Number of sampling frequencies = %li\n", M);
+
+    // Subtract the mean to avoid "zero-frequency" problems
+    if ( prep != 0 ) {
+        if ( quiet == 0 ){
+            printf(" - Subtracting the mean from time series\n");
+        }
+        arr_sca_add(flux, -arr_mean(flux, N), N);
+    }
+    else {
+        if ( quiet == 0 )
+            printf(" - Time series used *without* mean subtraction!\n");
+    }
 
 
     /* Find and clean peaks */
@@ -132,6 +152,11 @@ int main(int argc, char *argv[])
     double fmax = 0;
     double alpmax = 0;
     double betmax = 0;
+
+    // Display info
+    if ( quiet == 0 ) {
+        printf(" - CLEANing in the range %.1lf to %.1lf microHz\n", low, high);
+    }
 
     // Call with or without weights
     if ( useweight == 0 )
