@@ -31,6 +31,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 #include <omp.h>
 
@@ -52,6 +53,7 @@ int main(int argc, char *argv[])
     // Filenames
     char inname[100];
     char outname[100];
+    char logname[100];
 
     // Sampling
     double low, high, rate;
@@ -149,6 +151,26 @@ int main(int argc, char *argv[])
     }
 
 
+    /* Prepare file for writing the CLEAN-output */
+    // Create log-file
+    strcpy(logname, outname);
+    strcat(logname, ".cleanlog");
+    FILE* logfile = fopen(logname, "w");
+
+    // Write header
+    fprintf(logfile, "# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"\
+            "~~~~~~~~~~\n");
+    fprintf(logfile, "# Log of CLEAN on \"%s\"\n", inname);
+    fprintf(logfile, "# Interval: [%.2lf, %.2lf] microHz\n", low, high);
+    fprintf(logfile, "# Finding %i frequencies\n", Nclean);
+    fprintf(logfile, "# \n");
+    fprintf(logfile, "# %8s %11s %11s %12s %12s\n", "Number", "Frequency",\
+            "Power", "Alpha", "Beta");
+    fprintf(logfile, "# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"\
+            "~~~~~~~~~~\n");
+    
+
+    
     /* Find and clean peaks */
     // Init variables
     double fmax, alpmax, betmax, powmax;
@@ -177,8 +199,10 @@ int main(int argc, char *argv[])
         else
             fouriermax(time, flux, weight, freq, N, M, &fmax, &alpmax, &betmax, 1);
 
-        // Calculate the power
+        // Calculate the power and write to log
         powmax = alpmax*alpmax + betmax*betmax;
+        fprintf(logfile, " %6i %15.6lf %12.6lf %12.6lf %12.6lf\n", i+1, fmax,\
+                powmax, alpmax, betmax);
         if ( quiet == 0) printf(" %15.6lf %12.6lf \n", fmax, powmax);
 
         // Remove frequency from time series
@@ -186,10 +210,10 @@ int main(int argc, char *argv[])
             flux[j] = flux[j] - alpmax * sin( PI2micro*fmax * time[j] ) - \
                                 betmax * cos( PI2micro*fmax * time[j] );
         }
-    
     }
 
     // Final touch
+    fclose(logfile);
     if ( quiet == 0 ) printf("\n");
 
     
