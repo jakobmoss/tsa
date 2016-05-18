@@ -67,14 +67,21 @@ int main(int argc, char *argv[])
     int fast = 0;
     int useweight = 0;
     int Nclean = 0;
-    int filter = 1;
+    int filter = 1;  // 1 is init, 2 is bandpass, 3 is low, 4 is high
 
+    // Filtering frequencies
+    double fstart = 0;
+    double fstop = 0;
 
+    
     /* Process command line arguments and return line count of the input file */
     N = cmdarg(argc, argv, inname, outname, &quiet, &unit, &prep, &low, &high,\
-               &rate, &autosamp, &fast, &useweight, NULL, NULL, &Nclean, &filter);
+               &rate, &autosamp, &fast, &useweight, NULL, NULL, &Nclean,\
+               &filter, &fstart, &fstop);
 
 
+    printf("f1 = %lf\nf2 = %lf\n", fstart, fstop);
+    
     /* Done! */
     if ( quiet == 0 || fast ==1 ) printf("Done!\n\n");
     return 0; 

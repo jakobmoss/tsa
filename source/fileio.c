@@ -14,7 +14,8 @@
 int cmdarg(int argc, char *argv[], char inname[], char outname[], int *quiet,\
            int *unit, int *prep, double *low, double *high, double *rate,\
            int *autosamp, int *fast, int *useweight, int *windowmode,\
-           double *winfreq, int *CLEAN, int *filter)
+           double *winfreq, int *CLEAN, int *filter, double *fstart,\
+           double *fstop)
 {
     // Internal
     int isamp = 0;
@@ -22,18 +23,27 @@ int cmdarg(int argc, char *argv[], char inname[], char outname[], int *quiet,\
     int iwin = 0;
     
     // Quit if wrong number of arguments is given!
-    if ( *CLEAN == 0 ){
-        if (argc < 5) {
-            fprintf(stderr, "usage: %s  [-window f0] [-w] [-q] [-t{sec|day|ms}]" \
-                    " [-noprep] [-fast] -f {auto | low high rate | limit rate}" \
+    if ( *CLEAN != 0 ){
+        if (argc < 7) {
+            fprintf(stderr, "usage: %s  [-w] [-q] [-t{sec|day|ms}]" \
+                    " [-noprep] -n number -f {low high factor}" \
                     " input_file output_file\n", argv[0]);
             exit(1);
         }
     }
-    else {
-        if (argc < 7) {
+    else if ( *filter != 0 ) {
+        if (argc < 6) {
             fprintf(stderr, "usage: %s  [-w] [-q] [-t{sec|day|ms}]" \
-                    " [-noprep] -n number -f {low high factor}" \
+                    " [-noprep] mode -f {auto | low high rate}" \
+                    " input_file output_file\n", argv[0]);
+            exit(1);
+        }
+        
+    }
+    else {
+        if (argc < 5) {
+            fprintf(stderr, "usage: %s  [-window f0] [-w] [-q] [-t{sec|day|ms}]" \
+                    " [-noprep] [-fast] -f {auto | low high rate | limit rate}" \
                     " input_file output_file\n", argv[0]);
             exit(1);
         }
@@ -82,6 +92,30 @@ int cmdarg(int argc, char *argv[], char inname[], char outname[], int *quiet,\
         else if ( strcmp(argv[i], "-n" ) == 0 ) {
             i++;
             *CLEAN = atoi(argv[i]);
+        }
+        // Different modes for filtering
+        else if ( strcmp(argv[i], "-band" ) == 0 ) {
+            *filter = 2;
+
+            // Read frequencies
+            i++;
+            *fstart = atof(argv[i]);
+            i++;
+            *fstop = atof(argv[i]);
+        }
+        else if ( strcmp(argv[i], "-low" ) == 0 ) {
+            *filter = 3;
+
+            // Read frequency
+            i++;
+            *fstop = atof(argv[i]);
+        }
+        else if ( strcmp(argv[i], "-high" ) == 0 ) {
+            *filter = 4;
+
+            // Read frequency
+            i++;
+            *fstop = atof(argv[i]);
         }
         // Sampling
         else if ( strcmp(argv[i], "-f" ) == 0 ) {
