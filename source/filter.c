@@ -41,6 +41,7 @@
 #include "arrlib.h"
 #include "tsfourier.h"
 #include "window.h"
+#include "pass.h"
 
 #define PI2micro 6.28318530717958647692528676655900576839433879875e-6
 
@@ -49,8 +50,8 @@ int main(int argc, char *argv[])
 {
     /* Important definitions */
     // Lengths
-    size_t N = 0;  // Length of time series
-    size_t M = 0;  // Length of sampling vector (number of frequencies)
+    size_t N = 0;     // Length of time series
+    size_t Nres = 0;  // Length of filtered output
 
     // Filenames
     char inname[100];
@@ -79,9 +80,90 @@ int main(int argc, char *argv[])
                &rate, &autosamp, &fast, &useweight, NULL, NULL, &Nclean,\
                &filter, &fstart, &fstop);
 
+    // Pretty print
+    if ( quiet == 0 || fast == 1){
+        if ( useweight != 0 )
+            printf("\nFiltering the time series \"%s\" using weights...\n",\
+                   inname);
+        else
+            printf("\nFiltering the time series \"%s\" without weights...\n",\
+                   inname);
+    }
 
-    printf("f1 = %lf\nf2 = %lf\n", fstart, fstop);
     
+    /* Read data (and weights) from the input file */
+    if ( quiet == 0 ) printf(" - Reading input\n");
+    double* time = malloc(N * sizeof(double));
+    double* flux = malloc(N * sizeof(double));
+    double* weight = malloc(N * sizeof(double));
+    readcols(inname, time, flux, weight, N, useweight, unit, quiet);
+
+    // Do if fast-mode is not activated
+    if ( fast == 0 ) {
+        // Calculate Nyquist frequency
+        double* dt = malloc(N-1 * sizeof(double));
+        double nyquist;
+        arr_diff(time, dt, N);
+        nyquist = 1.0 / (2.0 * arr_median(dt, N-1)) * 1e6; // microHz !
+        free(dt);
+
+        // Calculate suggested sampling (4 times oversampling)
+        double minsamp;
+        minsamp = 1.0e6 / (4 * (time[N-1] - time[0])); // microHz !
+    
+        // Display info?
+        if ( quiet == 0 ){
+            printf(" -- INFO: Length of time series = %li\n", N);
+            printf(" -- INFO: Nyquist frequency = %.2lf microHz\n", nyquist);
+            printf(" -- INFO: Suggested minimum sampling = %.3lf microHz\n",\
+                   minsamp);
+        }
+
+        // Apply automatic sampling?
+        if ( autosamp != 0 ) {
+            low = 5.0;
+            high = nyquist;
+            rate = minsamp;
+        }
+    }
+
+
+    /* Prepare for power spectrum */
+    // Subtract the mean to avoid "zero-frequency" problems
+    double fmean = 0;
+    if ( prep != 0 ) {
+        if ( quiet == 0 ) printf(" - Subtracting the mean from time series\n");
+        fmean = arr_mean(flux, N);
+        arr_sca_add(flux, -fmean, N);
+    }
+    else {
+        if ( quiet == 0 )
+            printf(" - Time series used *without* mean subtraction!\n");
+    }
+
+    // Init output array
+    Nres = arr_util_getstep(fstart, fstop, rate);
+    double* filt = malloc(Nres * sizeof(double));
+    
+
+    /* Run the desired filter */
+    if ( filter == 2) {
+        if ( quiet == 0 ) printf(" - Bandpass filter chosen !\n");
+        bandpass(time, flux, weight, N, fstart, fstop, low, high, rate, filt,\
+                 Nres, useweight, quiet);
+    }
+    else {
+        fprintf(stderr, "ERROR: Unknown filter chosen !");
+    }
+
+    
+    /* Free data */
+    free(time);
+    free(flux);
+    free(weight);
+    free(filt);
+
+
     /* Done! */
     if ( quiet == 0 || fast ==1 ) printf("Done!\n\n");
     return 0; 

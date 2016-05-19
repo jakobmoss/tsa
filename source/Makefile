@@ -15,7 +15,7 @@ LDLIBS += -lm -fopenmp
 NAME = powerspec
 NAME2 = fclean
 NAME3 = filter
-DEPEND = fileio.o arrlib.o tsfourier.o window.o fmin.o
+DEPEND = fileio.o arrlib.o tsfourier.o window.o fmin.o pass.o
 
 # What to build
 all: $(NAME) $(NAME2) $(NAME3)
