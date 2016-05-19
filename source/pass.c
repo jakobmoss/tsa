@@ -10,6 +10,7 @@
 #include <math.h>
 
 #include "arrlib.h"
+#include "window.h"
 
 #define PI2micro 6.28318530717958647692528676655900576839433879875e-6
 

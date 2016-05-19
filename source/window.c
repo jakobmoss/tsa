@@ -236,13 +236,13 @@ void windowalpbetW(double time[], double weight[], double datasin[],\
 /* Calculate the sum of the spectral window
  *
  * Arguments:
- * - `f0`       : Desired frequency of the window function
- * - `limit`    : Sampling range: f0 +/- limit
- * - `rate`     : Frequency step of sampling
- * - `time`     : Array of times (from the time series). In seconds!
- * - `weight`   : Statistical weights per data point (pass NULL if no weights).
- * - `N`        : Length of the time series
- * - `useweight`: If != 0 weights will be used.
+ * - `f0`         : Desired frequency of the window function
+ * - `low`, `high`: Sampling limits 
+ * - `rate`       : Frequency step of sampling
+ * - `time`       : Array of times (from the time series). In seconds!
+ * - `weight`     : Statistical weights per data point (pass NULL if no weights).
+ * - `N`          : Length of the time series
+ * - `useweight`  : If != 0 weights will be used.
  *
  * Note on weights:
  * If used without weights, call as:
@@ -250,15 +250,13 @@ void windowalpbetW(double time[], double weight[], double datasin[],\
  *   
  */
 
-double windowsum(double f0, double limit, double rate, double time[],
+double windowsum(double f0, double low, double high, double rate, double time[],
                  double weight[], size_t N, int useweight)
 {
     // Init
     double result = 0;
 
     // Calculate length of sampling vector
-    double low = f0 - limit;
-    double high = f0 + limit;
     size_t M = arr_util_getstep(low, high, rate);
 
     // Initialise arrays and generate sampling frequencies
