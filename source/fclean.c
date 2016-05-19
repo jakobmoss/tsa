@@ -100,9 +100,21 @@ int main(int argc, char *argv[])
         nyquist = 1.0 / (2.0 * arr_median(dt, N-1)) * 1e6; // microHz !
         free(dt);
 
-        // Calculate sampling (N times oversampling: N is stored in 'rate')
-        int oversamp = (int) rate;
-        double minsamp = 1.0e6 / (oversamp * (time[N-1] - time[0])); // microHz !
+        // Automatic or manual sampling?
+        int oversamp;
+        if ( autosamp != 0 ) {
+            low = 5.0;
+            high = nyquist;
+            oversamp = 4;
+        }
+        else {
+            oversamp = (int) rate;
+        }
+            
+       
+        // Calculate N times oversampling (in microHz!)
+        double minsamp = 1.0e6 / (oversamp * (time[N-1] - time[0]));
+        rate = minsamp;
     
         // Display info?
         if ( quiet == 0 ){
@@ -111,21 +123,11 @@ int main(int argc, char *argv[])
             printf(" -- INFO: Using %i times oversampling = %.3lf microHz\n",\
                    oversamp, minsamp);
         }
-
-        // Apply sampling in a provided range or the full range
-        if ( autosamp == 0 ) {
-            rate = minsamp;
-        }
-        else { 
-            low = 5.0;
-            high = nyquist;
-            rate = minsamp;
-        }
     }
     else {
-        // Only set the suggested sampling
+        // Only set the N times oversampling
         int oversamp = (int) rate;
-        double minsamp = 1.0e6 / (oversamp * (time[N-1] - time[0])); // microHz !
+        double minsamp = 1.0e6 / (oversamp * (time[N-1] - time[0]));
         rate = minsamp;
     }
 

@@ -15,6 +15,7 @@ cython/tsfourier.[c,h]
 # Executables
 powerspec
 fclean
+filter
 
 
 #############
