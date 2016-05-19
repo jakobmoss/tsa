@@ -126,25 +126,11 @@ int main(int argc, char *argv[])
         }
     }
 
-
-    /* Prepare for power spectrum */
-    // Subtract the mean to avoid "zero-frequency" problems
-    double fmean = 0;
-    if ( prep != 0 ) {
-        if ( quiet == 0 ) printf(" - Subtracting the mean from time series\n");
-        fmean = arr_mean(flux, N);
-        arr_sca_add(flux, -fmean, N);
-    }
-    else {
-        if ( quiet == 0 )
-            printf(" - Time series used *without* mean subtraction!\n");
-    }
-
+    
+    /* Run the desired filter */
     // Init output array
     double* filt = malloc(N * sizeof(double));
-    
 
-    /* Run the desired filter */
     if ( filter == 2 ) {
         if ( quiet == 0 ) {
             printf(" - Calculating bandpass filter between %.2lf and %.2lf"\
@@ -175,9 +161,6 @@ int main(int argc, char *argv[])
 
     /* Write filtered time series to file */
     if ( quiet == 0 ) printf(" - Saving to file \"%s\"\n", outname);
-
-    // Add the mean to the time series data again
-    if ( prep != 0 ) arr_sca_add(flux, fmean, N);
 
     // Save to file
     writecols3(outname, time, filt, weight, N, useweight, unit);

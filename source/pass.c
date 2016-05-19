@@ -38,10 +38,10 @@ void bandpass(double time[], double flux[], double weight[], size_t N,\
 {
     // Calculate the (sum of the) window function at central frequency
     if ( quiet == 0 ) printf(" -- TASK: Calculating window function ... \n");
-    double fwin = (f1 + f2)/2.0;
+    double fwin = f2;  // Before (resulting in wrong results) --> (f1 + f2)/2.0;
     double sumwin = windowsum(fwin, low, high, rate, time, weight, N, useweight);
     if ( quiet == 0 ) printf("      ... Done!\n");
-
+    
     // Fill sampling vector with cyclic frequencies
     size_t M = arr_util_getstep(f1, f2, rate);
     double* freq = malloc(M * sizeof(double));
@@ -54,7 +54,11 @@ void bandpass(double time[], double flux[], double weight[], size_t N,\
     double* alpha = malloc(M * sizeof(double));
     double* beta = malloc(M * sizeof(double));
 
-    // Calculate power spectrum and save alphas and betaas
+    // Subtract the mean to avoid "zero-frequency" problems
+    double fmean = arr_mean(flux, N);
+    arr_sca_add(flux, -fmean, N);
+
+    // Calculate power spectrum and save alphas and betas
     if ( quiet == 0 ) printf(" -- TASK: Calculating power spectrum ... \n");
     fourier(time, flux, weight, freq, N, M, power, alpha, beta, useweight);
     if ( quiet == 0 ) printf("      ... Done!\n");
@@ -75,13 +79,15 @@ void bandpass(double time[], double flux[], double weight[], size_t N,\
         }
     }
     if ( quiet == 0 ) printf("      ... Done!\n");
-    
+
+    // Add the mean again
+    arr_sca_add(flux, fmean, N);
+
     // Done!
     free(freq);
     free(power);
     free(alpha);
     free(beta);
-    
 }
 
 
@@ -136,12 +142,12 @@ void highpass(double time[], double flux[], double weight[], size_t N,\
     // Run lowpass filter
     lowpass(time, flux, weight, N, fhigh, low, high, rate, temp, useweight,\
             quiet);
-        
+    
     // Calculate highpass
     for (size_t i = 0; i < N; ++i) {
         result[i] = flux[i] - temp[i];
     }
-    
+
     // Done!
     free(temp);
 }
