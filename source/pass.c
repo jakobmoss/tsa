@@ -18,7 +18,20 @@
 
 
 
-/* Bandpass filter */
+/* Bandpass filter
+ *
+ * Arguments:
+ *  - `time`       : Array of times. In seconds!
+ *  - `flux`       : Array of data.
+ *  - `weight`     : Array of statistical weights.
+ *  - `N`          : Length of the time series
+ *  - `f1`, `f2`   : Frequency interval of filter (f1 < f2)
+ *  - `low`, `high`: Frequency interval to calculate the spectrum
+ *  - `rate`       : Frequency sampling
+ *  - `result`     : OUTPUT -- Array containing filtered data
+ *  - `useweight`  : Flag to signal whether to use weights or not (0 = no weights)
+ *  - `quiet`      : Flag. 0 = verbose output. 1 = no output to console
+ */
 void bandpass(double time[], double flux[], double weight[], size_t N,\
               double f1, double f2, double low, double high, double rate,\
               double result[], int useweight, int quiet)
@@ -70,3 +83,66 @@ void bandpass(double time[], double flux[], double weight[], size_t N,\
     free(beta);
     
 }
+
+
+/* Lowpass filter
+ *  --> Basically just a wrapper for the bandpass filter
+ *
+ * Arguments:
+ *  - `time`       : Array of times. In seconds!
+ *  - `flux`       : Array of data.
+ *  - `weight`     : Array of statistical weights.
+ *  - `N`          : Length of the time series
+ *  - `flow`       : Frequency limit of filter
+ *  - `low`, `high`: Frequency interval to calculate the spectrum
+ *  - `rate`       : Frequency sampling
+ *  - `result`     : OUTPUT -- Array containing filtered data
+ *  - `useweight`  : Flag to signal whether to use weights or not (0 = no weights)
+ *  - `quiet`      : Flag. 0 = verbose output. 1 = no output to console
+ */
+void lowpass(double time[], double flux[], double weight[], size_t N,\
+             double flow, double low, double high, double rate,       \
+             double result[], int useweight, int quiet)
+{
+    // Call bandpass filter from zero to lowpass frequency
+    double fzero = rate; // Not defined for exactly zero!
+    bandpass(time, flux, weight, N, fzero, flow, low, high, rate, result,\
+             useweight, quiet);
+}
+
+
+/* Highpass filter
+ *  --> Basically just a wrapper for the highpass filter
+ *
+ * Arguments:
+ *  - `time`       : Array of times. In seconds!
+ *  - `flux`       : Array of data.
+ *  - `weight`     : Array of statistical weights.
+ *  - `N`          : Length of the time series
+ *  - `flow`       : Frequency limit of filter
+ *  - `low`, `high`: Frequency interval to calculate the spectrum
+ *  - `rate`       : Frequency sampling
+ *  - `result`     : OUTPUT -- Array containing filtered data
+ *  - `useweight`  : Flag to signal whether to use weights or not (0 = no weights)
+ *  - `quiet`      : Flag. 0 = verbose output. 1 = no output to console
+ */
+void highpass(double time[], double flux[], double weight[], size_t N,\
+              double fhigh, double low, double high, double rate,     \
+              double result[], int useweight, int quiet)
+{
+    // Make temporary array
+    double* temp = malloc(N * sizeof(double));
+
+    // Run lowpass filter
+    lowpass(time, flux, weight, N, fhigh, low, high, rate, temp, useweight,\
+            quiet);
+        
+    // Calculate highpass
+    for (size_t i = 0; i < N; ++i) {
+        result[i] = flux[i] - temp[i];
+    }
+    
+    // Done!
+    free(temp);
+}
+
