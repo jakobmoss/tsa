@@ -26,35 +26,67 @@ void alpbetW(double time[], double flux[], double weight[], size_t N,\
 /* Calculate the fourier transform of time series
  *
  * Arguments:
- *  - `time` : Array of times. In seconds!
- *  - `flux` : Array of data.
- *  - `freq` : Array of cyclic frequencies to sample.
- *  - `N`    : Length of the time series
- *  - `M`    : Length of the sampling vector
- *  - `power`: OUTPUT -- Array with powers
+ *  - `time`     : Array of times. In seconds!
+ *  - `flux`     : Array of data.
+ *  - `weight`   : Array of statistical weights.
+ *  - `freq`     : Array of cyclic frequencies to sample.
+ *  - `N`        : Length of the time series
+ *  - `M`        : Length of the sampling vector
+ *  - `power`    : OUTPUT -- Array with powers
+ *  - `alpha`    : OUTPUT -- Array with alphas
+ *  - `beta`     : OUTPUT -- Array with betas
+ *  - `useweight`: Flag to signal whether to use weights or not (0 = no weights)
  */
-void fourier(double time[], double flux[], double freq[], size_t N, size_t M, \
-             double power[])
+void fourier(double time[], double flux[], double weight[], double freq[],\
+             size_t N, size_t M, double power[], double alpha[], double beta[],\
+             int useweight)
 {
     // Local variables
-    double alpha = 0;
-    double beta = 0;
+    double alp = 0;
+    double bet = 0;
     double ny = 0;
     size_t i;
 
-    // Make parallel loop over all test frequencies
-    #pragma omp parallel default(shared) private(alpha, beta, ny)
-    {
-        #pragma omp for schedule(static)
-        for (i = 0; i < M; ++i) {
-            // Current frequency
-            ny = freq[i] * PI2micro;
+    // Call functions with or without weights
+    if ( useweight == 0) {
+        // Make parallel loop over all test frequencies
+        #pragma omp parallel default(shared) private(alp, bet, ny)
+        {
+            #pragma omp for schedule(static)
+            for (i = 0; i < M; ++i) {
+                // Current frequency
+                ny = freq[i] * PI2micro;
 
-            // Calculate alpha and beta
-            alpbet(time, flux, N, ny, &alpha, &beta);
+                // Calculate alpha and beta
+                alpbet(time, flux, N, ny, &alp, &bet);
                 
-            // Store power
-            power[i] = alpha*alpha + beta*beta;
+                // Store alpha, beta and power
+                alpha[i] = alp;
+                beta[i] = bet;
+                power[i] = alp*alp + bet*bet;
+            }
+        }
+    }
+    else {
+        // Sum of all weights
+        double sumweights = arr_sum(weight, N);
+
+        // Make parallel loop over all test frequencies
+        #pragma omp parallel default(shared) private(alp, bet, ny)
+        {
+            #pragma omp for schedule(static)
+            for (i = 0; i < M; ++i) {
+                // Current frequency
+                ny = freq[i] * PI2micro;
+
+                // Calculate alpha and beta
+                alpbetW(time, flux, weight, N, ny, sumweights, &alp, &bet);
+                
+                // Store alpha, beta and power
+                alpha[i] = alp;
+                beta[i] = bet;
+                power[i] = alp*alp + bet*bet;
+            }
         }
     }
 }
@@ -99,48 +131,6 @@ void alpbet(double time[], double flux[], size_t N, double ny, double *alpha, \
 }
 
 
-
-/* Calculate the fourier transform of time series -- USING WEIGHTS
- *
- * Arguments:
- *  - `time`  : Array of times. In seconds!
- *  - `flux`  : Array of data.
- *  - `weight`: Array of statistical weights.
- *  - `freq`  : Array of cyclic frequencies to sample.
- *  - `N`     : Length of the time series
- *  - `M`     : Length of the sampling vector
- *  - `power` : OUTPUT -- Array with powers
- */
-void fourierW(double time[], double flux[], double weight[], double freq[],\
-              size_t N, size_t M, double power[])
-{
-    // Local variables
-    double alpha = 0;
-    double beta = 0;
-    double ny = 0;
-    size_t i;
-
-    // Sum of all weights
-    double sumweights = arr_sum(weight, N);
-
-    // Make parallel loop over all test frequencies
-    #pragma omp parallel default(shared) private(alpha, beta, ny)
-    {
-        #pragma omp for schedule(static)
-        for (i = 0; i < M; ++i) {
-            // Current frequency
-            ny = freq[i] * PI2micro;
-
-            // Calculate alpha and beta
-            alpbetW(time, flux, weight, N, ny, sumweights, &alpha, &beta);
-                
-            // Store power
-            power[i] = alpha*alpha + beta*beta;
-        }
-    }
-}
-
-
 // Calculate alpha and beta coefficients  -- USING WEIGHTS
 void alpbetW(double time[], double flux[], double weight[], size_t N,\
              double ny, double wsum, double *alpha, double *beta)
@@ -180,6 +170,21 @@ void alpbetW(double time[], double flux[], double weight[], size_t N,\
 }
 
 
+/* Calculate the fourier transform of time series and find the highest peak
+ *  --> Helper routine for CLEAN
+ *
+ * Arguments:
+ *  - `time`     : Array of times. In seconds!
+ *  - `flux`     : Array of data.
+ *  - `weight`   : Array of statistical weights.
+ *  - `freq`     : Array of cyclic frequencies to sample.
+ *  - `N`        : Length of the time series
+ *  - `M`        : Length of the sampling vector
+ *  - `fmax`     : OUTPUT -- Frequency of maximum power
+ *  - `alpmax`   : OUTPUT -- Alpha of that frequency
+ *  - `betmax`   : OUTPUT -- Beta of that frequency
+ *  - `useweight`: Flag to signal whether to use weights or not (0 = no weights)  
+ */
 void fouriermax(double time[], double flux[], double weight[], double freq[],\
                 size_t N, size_t M, double *fmax, double *alpmax,\
                 double *betmax, int useweight)

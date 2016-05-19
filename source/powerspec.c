@@ -155,6 +155,8 @@ int main(int argc, char *argv[])
 
     // Initialise arrays for data storage
     double* power = malloc(M * sizeof(double));
+    double* alpha = malloc(M * sizeof(double));
+    double* beta = malloc(M * sizeof(double));
 
 
     /* Calculate power spectrum OR window function */
@@ -171,7 +173,7 @@ int main(int argc, char *argv[])
                 printf(" - Time series used *without* mean subtraction!\n");
         }
     
-        // Calculate power spectrum
+        // Display info
         if ( quiet == 0 ){
             printf(" - Calculating fourier transform\n");
             if ( autosamp != 0 ) {
@@ -186,11 +188,8 @@ int main(int argc, char *argv[])
             printf(" -- INFO: Number of sampling frequencies = %li\n", M);
         }
 
-        // Call function with or without weights
-        if ( useweight == 0 )
-            fourier(time, flux, freq, N, M, power);
-        else
-            fourierW(time, flux, weight, freq, N, M, power);
+        // Calculate power spectrum with or without weights
+        fourier(time, flux, weight, freq, N, M, power, alpha, beta, useweight);
     }
     else {
         if ( quiet == 0 ){
@@ -226,6 +225,8 @@ int main(int argc, char *argv[])
     free(weight);
     free(freq);
     free(power);
+    free(alpha);
+    free(beta);
 
 
     /* Done! */
