@@ -27,11 +27,11 @@ void bandpass(double time[], double flux[], double weight[], size_t N,\
     double fwin = (f1 + f2)/2.0;
     double sumwin = windowsum(fwin, low, high, rate, time, weight, N, useweight);
     if ( quiet == 0 ) printf("      ... Done!\n");
-    
+
     // Fill sampling vector with cyclic frequencies
     size_t M = arr_util_getstep(f1, f2, rate);
     double* freq = malloc(M * sizeof(double));
-    arr_init_linspace(freq, f1, f2, M);
+    arr_init_linspace(freq, f1, rate, M);
     if ( quiet == 0 )
         printf(" -- INFO: Number of sampling frequencies = %li\n", M);
 
@@ -52,7 +52,7 @@ void bandpass(double time[], double flux[], double weight[], size_t N,\
         sumfilt = 0;
         for (size_t j = 0; j < M; ++j) {
             ny = freq[j] * PI2micro;
-            sumfilt += alpha[j]*sin(ny + time[i]) + beta[j]*cos(ny + time[i]);
+            sumfilt += alpha[j]*sin(ny*time[i]) + beta[j]*cos(ny*time[i]);
         }
         result[i] = sumfilt / sumwin;
     }

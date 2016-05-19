@@ -157,6 +157,15 @@ int main(int argc, char *argv[])
         fprintf(stderr, "ERROR: Unknown filter chosen !");
     }
 
+    /* Write filtered time series to file */
+    if ( quiet == 0 ) printf(" - Saving to file \"%s\"\n", outname);
+
+    // Add the mean to the time series data again
+    if ( prep != 0 ) arr_sca_add(flux, fmean, N);
+
+    // Save to file
+    writecols3(outname, time, filt, weight, N, useweight, unit);
+
     
     /* Free data */
     free(time);
