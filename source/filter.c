@@ -148,7 +148,10 @@ int main(int argc, char *argv[])
 
     /* Run the desired filter */
     if ( filter == 2) {
-        if ( quiet == 0 ) printf(" - Bandpass filter chosen !\n");
+        if ( quiet == 0 ) {
+            printf(" - Calculating bandpass filter between %.2lf and %.2lf"\
+                   " microHz\n", fstart, fstop);
+        }
         bandpass(time, flux, weight, N, fstart, fstop, low, high, rate, filt,\
                  Nres, useweight, quiet);
     }

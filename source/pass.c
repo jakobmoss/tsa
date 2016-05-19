@@ -21,8 +21,12 @@ void bandpass(double time[], double flux[], double weight[], size_t N,\
               double f1, double f2, double low, double high, double rate,\
               double result[], size_t Nres, int useweight, int quiet)
 {
-    // Calculate the (sum of the) window function
-
+    // Calculate the (sum of the) window function at central frequency
+    if ( quiet == 0 ) printf(" -- TASK: Calculating window function ... \n");
+    double fwin = (f1 + f2)/2.0;
+    double sumwin = windowsum(fwin, low, high, rate, time, weight, N, useweight);
+    printf("      ... Done!\n");
+    
     // Fill sampling vector with cyclic frequencies
     size_t M = arr_util_getstep(low, high, rate);
     double* freq = malloc(M * sizeof(double));
