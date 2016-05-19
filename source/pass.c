@@ -11,6 +11,7 @@
 
 #include "arrlib.h"
 #include "window.h"
+#include "tsfourier.h"
 
 #define PI2micro 6.28318530717958647692528676655900576839433879875e-6
 
@@ -41,8 +42,12 @@ void bandpass(double time[], double flux[], double weight[], size_t N,\
 
     // Calculate power spectrum and save alphas and betaas
     if ( quiet == 0 ) printf(" -- TASK: Calculating power spectrum ... \n");
+    fourier(time, flux, weight, freq, N, M, power, alpha, beta, useweight);
     if ( quiet == 0 ) printf("      ... Done!\n");
 
+    // Generate new time series
+    if ( quiet == 0 ) printf(" -- TASK: Calculating new time series ... \n");
+    if ( quiet == 0 ) printf("      ... Done!\n");
     
     // Done!
     free(freq);
