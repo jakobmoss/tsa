@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <omp.h>
 
 #include "arrlib.h"
 #include "window.h"
@@ -48,13 +49,17 @@ void bandpass(double time[], double flux[], double weight[], size_t N,\
     // Generate new time series
     if ( quiet == 0 ) printf(" -- TASK: Calculating new time series ... \n");
     double sumfilt, ny;
-    for (size_t i = 0; i < N; ++i) {
-        sumfilt = 0;
-        for (size_t j = 0; j < M; ++j) {
-            ny = freq[j] * PI2micro;
-            sumfilt += alpha[j]*sin(ny*time[i]) + beta[j]*cos(ny*time[i]);
+    #pragma omp parallel default(shared) private(sumfilt, ny)
+    {
+        #pragma omp for schedule(static)
+        for (size_t i = 0; i < N; ++i) {
+            sumfilt = 0;
+            for (size_t j = 0; j < M; ++j) {
+                ny = freq[j] * PI2micro;
+                sumfilt += alpha[j]*sin(ny*time[i]) + beta[j]*cos(ny*time[i]);
+            }
+            result[i] = sumfilt / sumwin;
         }
-        result[i] = sumfilt / sumwin;
     }
     if ( quiet == 0 ) printf("      ... Done!\n");
     
