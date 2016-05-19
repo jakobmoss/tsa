@@ -51,7 +51,6 @@ int main(int argc, char *argv[])
     /* Important definitions */
     // Lengths
     size_t N = 0;     // Length of time series
-    size_t Nres = 0;  // Length of filtered output
 
     // Filenames
     char inname[100];
@@ -142,8 +141,7 @@ int main(int argc, char *argv[])
     }
 
     // Init output array
-    Nres = arr_util_getstep(fstart, fstop, rate);
-    double* filt = malloc(Nres * sizeof(double));
+    double* filt = malloc(N * sizeof(double));
     
 
     /* Run the desired filter */
@@ -153,7 +151,7 @@ int main(int argc, char *argv[])
                    " microHz\n", fstart, fstop);
         }
         bandpass(time, flux, weight, N, fstart, fstop, low, high, rate, filt,\
-                 Nres, useweight, quiet);
+                 useweight, quiet);
     }
     else {
         fprintf(stderr, "ERROR: Unknown filter chosen !");
