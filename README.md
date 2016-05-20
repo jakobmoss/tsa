@@ -1,14 +1,20 @@
 # Time Series Analysis #
 
-Software for performing Time Series Analysis (targeted at astrophysical applications) written in C, Cython and Python.
+Software for performing Time Series Analysis (targeted at astrophysical applications) written in C. The package contains modules written in Cython and Python as well.
 
 Author: Jakob Rørsted Mosumgaard (jakob@phys.au.dk).
 
 
 ### Features ###
 
-* Complete program to make a power spectrum (the fourier transform of a time series) written in C. The software is using OpenMP for a performance boost using multithreading.
-* Stand-alone Cython-module, which is providing a Python interface to the fast C function. The interface has a very low overhead and almost as fast runtimes as the pure C.
+Core software written in C:
+* Program to make a power spectrum (the fourier transform of a time series) with and without statistical weights. Option to calculate the spectral window.
+* Program to run the CLEAN algorithm on a time series.
+* Program to filter data using band-, high- and low-pass filters.
+* The software is using OpenMP for a performance boost using multithreading.
+
+Extra features:
+* Stand-alone Cython-module, which is providing a Python interface to the fast C function for calculation of the power spectrum. The interface has a very low overhead and almost as fast runtimes as the pure C.
 * Pure Python/NumPy implementation of the algorithm for comparison (and for easy-to-read overview of the algorithm).
 * Python script to generate artificial test data for easy verification.
 
@@ -26,7 +32,7 @@ Setup: The whole project is controlled by several Makefile. Note that the Makefi
 * `make` will build the C-executable.
 * `make data` will create artificial data for testing.
 * `make test` will run the abovementioned targets and make a test-run and a plot.
-* `make cython` will make the stand-alone Cython module.
+* `make cython` will compile the stand-alone Cython module.
 
 
 ### Usage ###
