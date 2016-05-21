@@ -19,8 +19,6 @@
  *      input file containing weight per data point.
  *  -q: Quiet-mode. No output to console.
  *  -t{sec|day|ms}: Unit of input file (seconds [default], days, megaseconds).
- *  -noprep: Do not subtract the mean of time series (for artificial data where
- *           the mean is 0).
  *  -fast: Fast-mode. Disable Nyquist calculation (and hence automatic
  *         sampling range) for lower runtime. Activates quiet-mode. Use for
  *         benchmarking the pure I/O + algorithm.
@@ -62,7 +60,6 @@ int main(int argc, char *argv[])
     // Options
     int quiet = 0;
     int unit = 1;
-    int prep = 1;
     int autosamp = 0;
     int fast = 0;
     int useweight = 0;
@@ -75,7 +72,7 @@ int main(int argc, char *argv[])
 
     
     /* Process command line arguments and return line count of the input file */
-    N = cmdarg(argc, argv, inname, outname, &quiet, &unit, &prep, &low, &high,\
+    N = cmdarg(argc, argv, inname, outname, &quiet, &unit, NULL, &low, &high,\
                &rate, &autosamp, &fast, &useweight, NULL, NULL, &Nclean,\
                &filter, &fstart, &fstop);
 
