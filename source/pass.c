@@ -37,7 +37,10 @@ void bandpass(double time[], double flux[], double weight[], size_t N,\
               double result[], int useweight, int quiet)
 {
     // Calculate the (sum of the) window function at central frequency
-    if ( quiet == 0 ) printf(" -- TASK: Calculating window function ... \n");
+    if ( quiet == 0 ) {
+        printf(" -- INFO: Number of frequencies in the window = %li\n", N);
+        printf(" -- TASK: Calculating window function ... \n");
+    }
     double fwin = (low + high)/2.0;
     double sumwin = windowsum(fwin, low, high, rate, time, weight, N, useweight);
     if ( quiet == 0 ) printf("      ... Done!\n");
