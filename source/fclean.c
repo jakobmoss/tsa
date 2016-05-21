@@ -205,9 +205,9 @@ int main(int argc, char *argv[])
 
         // Calculate the power and write to log
         powmax = alpmax*alpmax + betmax*betmax;
-        fprintf(logfile, " %6i %15.6lf %12.6lf %12.6lf %12.6lf\n", i+1, fmax,\
+        fprintf(logfile, " %6i %15.6lf %12.6lg %12.6lf %12.6lf\n", i+1, fmax,\
                 powmax, alpmax, betmax);
-        if ( quiet == 0) printf(" %15.6lf %12.6lf \n", fmax, powmax);
+        if ( quiet == 0) printf(" %15.6lf %12.6lg \n", fmax, powmax);
 
         // Remove frequency from time series
         for (int j = 0; j < N; ++j) {
