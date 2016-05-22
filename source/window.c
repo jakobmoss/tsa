@@ -5,6 +5,7 @@
  * Author: Jakob Rørsted Mosumgaard
  */
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <omp.h>
@@ -243,6 +244,7 @@ void windowalpbetW(double time[], double weight[], double datasin[],\
  * - `weight`     : Statistical weights per data point (pass NULL if no weights).
  * - `N`          : Length of the time series
  * - `useweight`  : If != 0 weights will be used.
+ * - `quiet`      : If != 0 no output will be displayed to console
  *
  * Note on weights:
  * If used without weights, call as:
@@ -251,13 +253,16 @@ void windowalpbetW(double time[], double weight[], double datasin[],\
  */
 
 double windowsum(double f0, double low, double high, double rate, double time[],
-                 double weight[], size_t N, int useweight)
+                 double weight[], size_t N, int useweight, int quiet)
 {
     // Init
     double result = 0;
 
     // Calculate length of sampling vector
     size_t M = arr_util_getstep(low, high, rate);
+    if ( quiet == 0 )
+        printf(" -- INFO: Number of frequencies in the window = %li\n", M);
+
 
     // Initialise arrays and generate sampling frequencies
     double* freq = malloc(M * sizeof(double));
