@@ -82,8 +82,9 @@ void bandpass(double time[], double flux[], double weight[], size_t N,\
     }
     if ( quiet == 0 ) printf("      ... Done!\n");
 
-    // Add the mean again
+    // Add the mean again -- also to the filter
     arr_sca_add(flux, fmean, N);
+    arr_sca_add(result, fmean, N);
 
     // Done!
     free(freq);
