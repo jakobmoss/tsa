@@ -121,7 +121,7 @@ void lowpass(double time[], double flux[], double weight[], size_t N,\
 
 
 /* Highpass filter
- *  --> Basically just a wrapper for the highpass filter
+ *  --> Basically just a wrapper for the lowpass filter
  *
  * Arguments:
  *  - `time`       : Array of times. In seconds!
