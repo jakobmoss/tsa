@@ -172,7 +172,6 @@ int main(int argc, char *argv[])
             "Power", "Alpha", "Beta");
     fprintf(logfile, "# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"\
             "~~~~~~~~~~\n");
-    
 
     
     /* Find and clean peaks */
@@ -198,10 +197,8 @@ int main(int argc, char *argv[])
         powmax = 0;
 
         // Call with or without weights
-        if ( useweight == 0 )
-            fouriermax(time, flux, NULL, freq, N, M, &fmax, &alpmax, &betmax, 0);
-        else
-            fouriermax(time, flux, weight, freq, N, M, &fmax, &alpmax, &betmax, 1);
+        fouriermax(time, flux, weight, freq, N, M, &fmax, &alpmax, &betmax,\
+                   useweight);
 
         // Calculate the power and write to log
         powmax = alpmax*alpmax + betmax*betmax;
@@ -238,7 +235,6 @@ int main(int argc, char *argv[])
     free(freq);
 
 
-    
     /* Done! */
     if ( quiet == 0 || fast ==1 ) printf("Done!\n\n");
     return 0; 
