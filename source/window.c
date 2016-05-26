@@ -246,10 +246,6 @@ void windowalpbetW(double time[], double weight[], double datasin[],\
  * - `useweight`  : If != 0 weights will be used.
  * - `quiet`      : If != 0 no output will be displayed to console
  *
- * Note on weights:
- * If used without weights, call as:
- *   >  windowsum(f0, limit, data, time, NULL, N, 0)
- *   
  */
 
 double windowsum(double f0, double low, double high, double rate, double time[],
