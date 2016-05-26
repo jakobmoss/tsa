@@ -48,7 +48,7 @@ void fourier(double time[], double flux[], double weight[], double freq[],\
     size_t i;
 
     // Call functions with or without weights
-    if ( useweight == 0) {
+    if ( useweight == 0 ) {
         // Make parallel loop over all test frequencies
         #pragma omp parallel default(shared) private(alp, bet, ny)
         {

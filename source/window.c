@@ -14,8 +14,8 @@
 #define PI2micro 6.28318530717958647692528676655900576839433879875e-6
 
 void windowalpbet(double time[], double datasin[], double datacos[], size_t N,\
-            double ny, double *alphasin, double *betasin, double *alphacos,\
-            double *betacos);
+                  double ny, double *alphasin, double *betasin,
+                  double *alphacos, double *betacos);
 
 void windowalpbetW(double time[], double weight[], double datasin[],\
                    double datacos[], size_t N, double ny, double wsum,\
@@ -26,14 +26,16 @@ void windowalpbetW(double time[], double weight[], double datasin[],\
 /* Calculate the window function of a time series
  *
  * Arguments:
- *  - `time`  : Array of times. In seconds!
- *  - `freq`  : Array of cyclic frequencies to sample.
- *  - `N`     : Length of the time series
- *  - `M`     : Length of the sampling vector
- *  - `window`: OUTPUT -- Array with power of the window
+ *  - `time`     : Array of times. In seconds!
+ *  - `freq`     : Array of cyclic frequencies to sample.
+ *  - `weight`   : Array of statistical weights.
+ *  - `N`        : Length of the time series
+ *  - `M`        : Length of the sampling vector
+ *  - `window`   : OUTPUT -- Array with power of the window
+ *  - `useweight`: Flag to signal whether to use weights or not (0 = no weights)
  */
-void windowfunction(double time[], double freq[], size_t N, size_t M,\
-                    double f0, double window[])
+void windowfunction(double time[], double freq[], double weight[], size_t N,\
+                    size_t M, double f0, double window[], int useweight)
 {
     // Sample the time series using cos and sin at frequency f0
     double* datsin = malloc(N * sizeof(double));
@@ -43,7 +45,7 @@ void windowfunction(double time[], double freq[], size_t N, size_t M,\
         datsin[k] = sin(omega0 * time[k]);
         datcos[k] = cos(omega0 * time[k]);
     }
-
+    
     // Initialise local variables
     double alphasin = 0;
     double betasin = 0;
@@ -52,21 +54,46 @@ void windowfunction(double time[], double freq[], size_t N, size_t M,\
     double ny = 0;
     size_t i;
 
-    // Make parallel loop over all test frequencies
-    #pragma omp parallel default(shared) private(alphasin, betasin, alphacos, betacos, ny)
-    {
-        #pragma omp for schedule(static)
-        for (i = 0; i < M; ++i) {
-            // Current frequency
-            ny = freq[i] * PI2micro;
+    // Call functions with or without weights
+    if ( useweight == 0 ) {
+        // Make parallel loop over all test frequencies
+        #pragma omp parallel default(shared) private(alphasin, betasin, alphacos, betacos, ny)
+        {
+            #pragma omp for schedule(static)
+            for (i = 0; i < M; ++i) {
+                // Current frequency
+                ny = freq[i] * PI2micro;
 
-            // Calculate alpha and beta for cos and sin data
-            windowalpbet(time, datsin, datcos, N, ny, &alphasin, &betasin, \
-                         &alphacos, &betacos);
+                // Calculate alpha and beta for cos and sin data
+                windowalpbet(time, datsin, datcos, N, ny, &alphasin, &betasin, \
+                             &alphacos, &betacos);
                 
-            // Store power
-            window[i] = 0.5 * ( (alphasin*alphasin + betasin*betasin) + \
-                                (alphacos*alphacos + betacos*betacos)    );
+                // Store power
+                window[i] = 0.5 * ( (alphasin*alphasin + betasin*betasin) + \
+                                    (alphacos*alphacos + betacos*betacos)    );
+            }
+        }
+    }
+    else {
+        // Sum of all weights
+        double sumweights = arr_sum(weight, N);
+        
+        // Make parallel loop over all test frequencies
+        #pragma omp parallel default(shared) private(alphasin, betasin, alphacos, betacos, ny)
+        {
+            #pragma omp for schedule(static)
+            for (i = 0; i < M; ++i) {
+                // Current frequency
+                ny = freq[i] * PI2micro;
+
+                // Calculate alpha and beta for cos and sin data
+                windowalpbetW(time, weight, datsin, datcos, N, ny, sumweights, \
+                              &alphasin, &betasin, &alphacos, &betacos);
+                
+                // Store power
+                window[i] = 0.5 * ( (alphasin*alphasin + betasin*betasin) + \
+                                    (alphacos*alphacos + betacos*betacos)    );
+            }
         }
     }
 
@@ -121,65 +148,6 @@ void windowalpbet(double time[], double datasin[], double datacos[], size_t N,\
     *betasin  = (csin * ss - ssin * sc)/D;
     *alphacos = (scos * cc - ccos * sc)/D;
     *betacos  = (ccos * ss - scos * sc)/D;
-}
-
-
-
-/* Calculate the window function of a time series USING WEIGHTS
- *
- * Arguments:
- *  - `time`  : Array of times. In seconds!
- *  - `freq`  : Array of cyclic frequencies to sample.
- *  - `weight`: Statistical weights per data point.
- *  - `N`     : Length of the time series
- *  - `M`     : Length of the sampling vector
- *  - `window`: OUTPUT -- Array with power of the window
- */
-void windowfunctionW(double time[], double freq[], double weight[], size_t N,
-                     size_t M, double f0, double window[])
-{
-    // Sample the time series using cos and sin at frequency f0
-    // NOTE: The weights are included here for efficiency
-    double* datsin = malloc(N * sizeof(double));
-    double* datcos = malloc(N * sizeof(double));
-    double omega0 = f0 * PI2micro;
-    for (size_t k = 0; k < N; ++k) {
-        datsin[k] = weight[k] * sin(omega0 * time[k]);
-        datcos[k] = weight[k] * cos(omega0 * time[k]);
-    }
-
-    // Initialise local variables
-    double alphasin = 0;
-    double betasin = 0;
-    double alphacos = 0;
-    double betacos = 0;
-    double ny = 0;
-    size_t i;
-
-    // Sum of all weights
-    double sumweights = arr_sum(weight, N);
-
-    // Make parallel loop over all test frequencies
-    #pragma omp parallel default(shared) private(alphasin, betasin, alphacos, betacos, ny)
-    {
-        #pragma omp for schedule(static)
-        for (i = 0; i < M; ++i) {
-            // Current frequency
-            ny = freq[i] * PI2micro;
-
-            // Calculate alpha and beta for cos and sin data
-            windowalpbetW(time, weight, datsin, datcos, N, ny, sumweights,\
-                          &alphasin, &betasin, &alphacos, &betacos);
-                
-            // Store power
-            window[i] = 0.5 * ( (alphasin*alphasin + betasin*betasin) + \
-                                (alphacos*alphacos + betacos*betacos)    );
-        }
-    }
-
-    // Done
-    free(datsin);
-    free(datcos);
 }
 
 
@@ -245,9 +213,7 @@ void windowalpbetW(double time[], double weight[], double datasin[],\
  * - `N`          : Length of the time series
  * - `useweight`  : If != 0 weights will be used.
  * - `quiet`      : If != 0 no output will be displayed to console
- *
  */
-
 double windowsum(double f0, double low, double high, double rate, double time[],
                  double weight[], size_t N, int useweight, int quiet)
 {
@@ -266,10 +232,7 @@ double windowsum(double f0, double low, double high, double rate, double time[],
     arr_init_linspace(freq, low, rate, M);
 
     // Calculate spectral window with or without weights
-    if ( useweight == 0 )
-        windowfunction(time, freq, N, M, f0, window);
-    else
-        windowfunctionW(time, freq, weight, N, M, f0, window);
+    windowfunction(time, freq, weight, N, M, f0, window, useweight);
 
     // Calculate the sum
     result = arr_sum(window, M);
@@ -279,4 +242,3 @@ double windowsum(double f0, double low, double high, double rate, double time[],
     free(window);
     return result;
 }
-

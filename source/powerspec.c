@@ -201,10 +201,7 @@ int main(int argc, char *argv[])
         }
 
         // Calculate spectral window with or without weights
-        if ( useweight == 0 )
-            windowfunction(time, freq, N, M, winfreq, power);
-        else
-            windowfunctionW(time, freq, weight, N, M, winfreq, power);
+        windowfunction(time, freq, weight, N, M, winfreq, power, useweight);
 
         if ( quiet == 0 )
             printf(" - Sum of spectral window = %.4lf\n", arr_sum(power, M));
