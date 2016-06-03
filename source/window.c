@@ -179,10 +179,10 @@ void windowalpbetW(double time[], double weight[], double datasin[],\
 
         // Calculate sin, cos terms for both data series
         // NOTE: The weights are already taken into account in the data!
-        ssin += datasin[i] * sn;
-        csin += datasin[i] * cn;
-        scos += datacos[i] * sn;
-        ccos += datacos[i] * cn;
+        ssin += weight[i] * datasin[i] * sn;
+        csin += weight[i] * datasin[i] * cn;
+        scos += weight[i] * datacos[i] * sn;
+        ccos += weight[i] * datacos[i] * cn;
 
         // Calculate common squared and cross terms
         cc += weight[i] * cn * cn;
