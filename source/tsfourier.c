@@ -283,7 +283,7 @@ void fouriermax(double time[], double flux[], double weight[], double freq[],\
             nymaxlocal = 0;
 
             // Do the loop (nowait -> each threads can move on to comparison)
-            #pragma omp for schedule(static)
+            #pragma omp for schedule(static) nowait
             for (i = 0; i < M; ++i) {
                 // Current frequency
                 ny = freq[i] * PI2micro;
