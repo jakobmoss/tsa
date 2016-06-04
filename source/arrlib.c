@@ -109,7 +109,7 @@ size_t arr_util_getstep(double a, double b, double rate)
         val += rate;
         steps++;
     } while (val < b);
-    return steps-1;
+    return steps;      // Previously: steps-1;
 }
 
 // FOR MEDIAN: Sort array using (recursive) 'quicksort' algorithm

@@ -204,6 +204,10 @@ void fouriermax(double time[], double flux[], double weight[], double freq[],\
     double pmax = 0;
     double nymax = 0;
 
+    // For optimisation routine
+    double df = PI2micro * (freq[1] - freq[0]);
+    double lim1, lim2;
+
     // Call functions with or without weights
     if ( useweight == 0 ) {
         // Function for minimisation (nested for variable access)
@@ -255,8 +259,13 @@ void fouriermax(double time[], double flux[], double weight[], double freq[],\
         }
 
         // Search around found peak for the "true" minimum
-        double df = PI2micro * (freq[1] - freq[0]);
-        pmax = - fmin_golden(powopt, nymax-df, nymax+df, EPS, &nymax);
+        //  --> Ensure not to go beyond limits
+        if ( nymax-df >  PI2micro * freq[0] ) lim1 = nymax-df;
+        else lim1 = PI2micro * freq[0];
+        if ( nymax+df <  PI2micro * freq[M] ) lim2 = nymax+df;
+        else lim2 = PI2micro * freq[M-1];
+
+        pmax = - fmin_golden(powopt, lim1, lim2, EPS, &nymax);
 
         // Store the optimised values
         alpbet(time, flux, N, nymax, alpmax, betmax);
@@ -315,9 +324,14 @@ void fouriermax(double time[], double flux[], double weight[], double freq[],\
         }
 
         // Search around found peak for the "true" minimum
-        double df = PI2micro * (freq[1] - freq[0]);
-        pmax = - fmin_golden(powopt, nymax-df, nymax+df, EPS, &nymax);
+        //  --> Ensure not to go beyond limits
+        if ( nymax-df >  PI2micro * freq[0] ) lim1 = nymax-df;
+        else lim1 = PI2micro * freq[0];
+        if ( nymax+df <  PI2micro * freq[M] ) lim2 = nymax+df;
+        else lim2 = PI2micro * freq[M-1];
 
+        pmax = - fmin_golden(powopt, lim1, lim2, EPS, &nymax);
+        
         // Store the optimised values
         alpbetW(time, flux, weight, N, nymax, sumweights, alpmax, betmax);
         *fmax = nymax/PI2micro;
