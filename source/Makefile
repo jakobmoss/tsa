@@ -5,7 +5,7 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Settings
-CC = gcc-5
+CC = gcc-6
 CFLAGS = -Wall -std=gnu99
 CFLAGS += -O3 -ffast-math -funroll-loops
 CFLAGS += -fopenmp

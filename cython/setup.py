@@ -12,7 +12,7 @@ from Cython.Build import cythonize
 import os
 from sys import platform
 if platform.lower() == 'darwin':
-    os.environ['CC'] = 'gcc-5'
+    os.environ['CC'] = 'gcc-6'
 
 # Do the build
 ext = Extension('fourier', sources=['fourier.pyx', 'tsfourier.c'])
